@@ -13,7 +13,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.project.DomainRegistrationLive.exception.ErrorCodes.DUPLICATE_DOMAIN;
 
@@ -26,31 +31,61 @@ public class IngestionServiceImpl implements IngestionService {
     private final DomainMapper domainMapper;
 
     @Override
-    @Transactional
-    public IngestResponse ingest(IngestRequest request) {
-        if(domainRepository.findByName(request.name())){
-            throw new DuplicateResourceException(DUPLICATE_DOMAIN, "Domain with this name already exists");
-        }
-        String extractedDomain = extractHost(request.name());
+    public Domain buildDomain(String extractedDomain, int registrarId, LocalDateTime registeredAt) {
+
         String[] domainArr = extractedDomain.split("\\.");
         String sld = domainArr[0];
         String tld = String.join(".", Arrays.copyOfRange(domainArr, 1, domainArr.length));
+
 
         Domain domain = Domain.builder()
                 .name(extractedDomain)
                 .sld(sld)
                 .tld(tld)
-                .registrarId(request.registrarId())
-                .registeredAt(request.registeredAt())
+                .registrarId(registrarId)
+                .registeredAt(registeredAt)
                 .status(DomainStatus.PENDING)
                 .build();
 
-        domainRepository.save(domain);
-
-        return domainMapper.toIngestResponse(domain);
+        return domain;
 
     }
 
+
+    @Override
+    @Transactional
+    public List<IngestResponse> ingestAll(List<IngestRequest> requests){
+
+        List<String> names = requests.stream()
+                .map(request -> extractHost(request.name()))
+                .distinct()
+                .toList();
+
+        List<Domain> existingDomains = domainRepository.findByNameIn(names);
+
+        Set<String> seenNames = existingDomains.stream()
+                .map(domain -> domain.getName())
+                .collect(Collectors.toSet());
+
+
+
+        List<Domain> domains = new ArrayList<>();
+
+        for(IngestRequest request : requests){
+            String extractedDomain = extractHost(request.name());
+            if(!seenNames.add(extractedDomain)){
+                log.info("Skipping duplicate registration for domain: {}", extractedDomain);
+                continue;
+            }
+
+            Domain newDomain = buildDomain(extractedDomain, request.registrarId(), request.registeredAt());
+            domains.add(newDomain);
+        }
+        domainRepository.saveAll(domains);
+
+        return domainMapper.toIngestResponseList(domains);
+
+    }
 
 
     @Override
