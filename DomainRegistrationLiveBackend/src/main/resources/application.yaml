@@ -1,3 +1,15 @@
 spring:
   application:
     name: DomainRegistrationLive
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/DomainRegistrationLiveDashboardDB}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:naman1234}
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
