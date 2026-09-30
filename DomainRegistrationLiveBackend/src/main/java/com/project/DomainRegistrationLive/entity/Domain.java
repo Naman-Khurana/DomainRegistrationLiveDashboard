@@ -1,5 +1,6 @@
 package com.project.DomainRegistrationLive.entity;
 
+import com.project.DomainRegistrationLive.enums.DomainStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,7 +26,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Domain {
+public class Domain extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -46,11 +47,9 @@ public class Domain {
     @Column(name = "registered_at", nullable = false)
     private LocalDateTime registeredAt;
 
-    @Column(name = "first_seen_at", nullable = false)
-    private LocalDateTime firstSeenAt;
-
     @Column(nullable = false)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private DomainStatus status = DomainStatus.PENDING;
 
     @Column(nullable = false)
     private Integer attempts;

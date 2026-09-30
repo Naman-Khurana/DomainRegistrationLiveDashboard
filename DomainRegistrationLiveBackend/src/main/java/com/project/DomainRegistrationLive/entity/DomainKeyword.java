@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -27,7 +28,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class DomainKeyword {
+public class DomainKeyword extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -44,7 +45,7 @@ public class DomainKeyword {
     private String keyword;
 
     @Column(name = "registered_at", nullable = false)
-    private Instant registeredAt;
+    private LocalDateTime registeredAt;
 
     @Column(name = "is_first", nullable = false)
     private Boolean isFirst;
