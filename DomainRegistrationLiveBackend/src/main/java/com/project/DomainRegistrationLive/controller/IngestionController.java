@@ -24,18 +24,21 @@ public class IngestionController {
     private  final IngestionService ingestionService;
 
     @PostMapping()
+    public ResponseEntity<List<IngestResponse>> ingest(@Valid @RequestBody  IngestRequest request){
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(ingestionService.ingestAll(List.of(request)));
+    }
+
+
+    @PostMapping("/batch")
     public ResponseEntity<List<IngestResponse>> ingest(@Valid @RequestBody  List<IngestRequest> request){
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ingestionService.ingestAll(request));
     }
 
-    @PostMapping("/batch")
-    public ResponseEntity<List<IngestResponse>> ingest(@Valid @RequestBody  IngestRequest request){
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ingestionService.ingestAll(List.of(request)));
-    }
+
 
 
 }

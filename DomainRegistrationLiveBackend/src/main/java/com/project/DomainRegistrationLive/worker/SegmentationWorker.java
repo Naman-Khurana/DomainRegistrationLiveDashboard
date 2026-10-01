@@ -50,8 +50,15 @@ public class SegmentationWorker {
         while(running){
             try {
                 int domainsProcessed = segmentationService.processBatch();
-                if(domainsProcessed == 0 && !sleep(segmentationProperties.idleSleep().toMillis())){
-                    break;
+                if(domainsProcessed == 0 ){
+
+                    long sleepMs = segmentationProperties.idleSleep().toMillis();
+
+                    log.info("No pending domains. Sleeping for {} ms", sleepMs);
+
+                    if (!sleep(sleepMs)) {
+                        break;
+                    }
                 }
             }catch (SplitterException e) {
                 log.warn("splitter unavailable, retrying later: {}", e.getMessage());

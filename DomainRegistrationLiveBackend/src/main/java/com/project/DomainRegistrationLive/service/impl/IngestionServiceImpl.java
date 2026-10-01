@@ -44,6 +44,7 @@ public class IngestionServiceImpl implements IngestionService {
                 .tld(tld)
                 .registrarId(registrarId)
                 .registeredAt(registeredAt)
+                .attempts(0)
                 .status(DomainStatus.PENDING)
                 .build();
 

@@ -22,5 +22,6 @@ splitter:
 segmentation:
   batch-size: 100
   max-attempts: 5
-  idle-sleep: 1s
+#  change idle time to 1 sec later
+  idle-sleep: 5s
   error-backoff: 5s
