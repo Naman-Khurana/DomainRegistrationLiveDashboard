@@ -1,0 +1,3 @@
+Flask
+dksplit
+gunicorn>=22.0
