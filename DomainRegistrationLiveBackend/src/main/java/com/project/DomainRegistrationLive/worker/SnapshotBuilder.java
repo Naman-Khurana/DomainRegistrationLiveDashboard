@@ -32,7 +32,7 @@ public class SnapshotBuilder {
     private final DomainRepository domainRepository;
     private final SnapshotProperties snapshotProperties;
     private final FeedService feedService;
-    private SnapshotStatsService snapshotStatsService;
+    private final SnapshotStatsService snapshotStatsService;
 
 
     @Scheduled(fixedRateString = "${snapshot.interval:10s}", initialDelayString = "${snapshot.initial-delay:3s}")

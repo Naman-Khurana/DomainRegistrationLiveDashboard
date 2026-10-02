@@ -135,8 +135,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         List<Object[]> topRegistrars = domainRepository.getRegistrarCounts(from, now, PARSED, PageRequest.of(0, snapshotProperties.topRegistrars()));
         List<RegistrarEntry> out = new ArrayList<>(topRegistrars.size());
         for (Object[] reg : topRegistrars) {
-            Long id = (long)(reg[0]);
-            out.add(new RegistrarEntry(id, snapshotProperties.registrarName(id), (long)(reg[1])));
+            Long id = longNullSafe(reg[0]);
+            out.add(new RegistrarEntry(id, snapshotProperties.registrarName(id), longNullSafe(reg[1])));
         }
         return out;
     }
@@ -220,7 +220,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         List<HourEntry> out = new ArrayList<>(24);
         for (int i = 0; i < 24; i++) {                       // always 24 entries, empty hours are 0
             LocalDateTime h = start.plusHours(i);
-            out.add(new HourEntry(h.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
+            out.add(new HourEntry(h.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
                     counts.getOrDefault(h, 0L)));
         }
         return out;

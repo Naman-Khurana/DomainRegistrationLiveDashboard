@@ -36,7 +36,7 @@ public class FeedServiceImpl implements FeedService {
         List<Domain> newestFirst = domainRepository.findByStatusAndIdGreaterThanAndIdLessThanEqualOrderByIdDesc(
                 DomainStatus.PARSED,afterId,toId, Pageable.unpaged()
         );
-        return List.of();
+        return toEntries(newestFirst);
     }
 
     //for new session
