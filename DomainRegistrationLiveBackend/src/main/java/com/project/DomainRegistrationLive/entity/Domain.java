@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "domain",
@@ -29,8 +28,8 @@ import java.util.UUID;
 public class Domain extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false, unique = true)
     private String name;
@@ -59,9 +58,6 @@ public class Domain extends BaseEntity {
 
     @Column(name = "parsed_at")
     private LocalDateTime parsedAt;
-
-    @Column(name = "feed_seq", unique = true)
-    private Long feedSeq;
 
     @OneToMany(mappedBy = "domain")
     private List<DomainKeyword> keywords;

@@ -12,17 +12,17 @@ import com.project.DomainRegistrationLive.splitter.dto.SplitResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.project.DomainRegistrationLive.splitter.SplitConstants.SPLITTER_INVALID_RESPONSE;
 
-@Component
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class SegmentationWriterServiceImpl implements SegmentationWriterService {
@@ -33,7 +33,7 @@ public class SegmentationWriterServiceImpl implements SegmentationWriterService 
     @Transactional
     @Override
     public void buildDomainKeywordsAndSave(List<Domain> domains, SplitResponse response){
-        Map<UUID, List<String>> keywordsByDomainId =
+        Map<Long, List<String>> keywordsByDomainId =
                 response.results().stream()
                         .collect(Collectors.toMap(
                                 SplitResult::domainId,

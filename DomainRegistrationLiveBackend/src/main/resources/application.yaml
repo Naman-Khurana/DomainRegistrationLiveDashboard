@@ -25,3 +25,9 @@ segmentation:
 #  change idle time to 1 sec later
   idle-sleep: 5s
   error-backoff: 5s
+
+snapshot:
+  interval: 10s
+  initial-delay: 3s
+  snapshots-to-keep: 500
+  top-keywords: 15
