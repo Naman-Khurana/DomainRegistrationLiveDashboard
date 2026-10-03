@@ -82,7 +82,7 @@ export default function LiveFeed({ incomingEntries, isLoading = false }: Props) 
     fresh.forEach((e) => knownSeqsRef.current.add(e.seq));
 
     // Sort newest-first within the fresh batch
-    const sorted = [...fresh].sort((a, b) => b.seq - a.seq);
+    const sorted = [...fresh].sort((a, b) => a.seq - b.seq);
 
     if (!initializedRef.current) {
       // ── First load: render all at once, no animation ──
@@ -194,9 +194,7 @@ export default function LiveFeed({ incomingEntries, isLoading = false }: Props) 
           visible.map((item) => (
             <div
               key={`${item.seq}-${item.domain}`}
-              className={`flex items-center justify-between py-2 border-b border-gray-100 last:border-0 ${
-                newSeqs.has(item.seq) ? "feed-item-new" : ""
-              }`}
+              className={`flex items-center justify-between py-2 border-b border-gray-100 last:border-0 ${newSeqs.has(item.seq) ? "feed-item-new" : ""}`}
             >
               <div>
                 <div className="text-[13px] font-medium text-gray-900">{item.domain}</div>
