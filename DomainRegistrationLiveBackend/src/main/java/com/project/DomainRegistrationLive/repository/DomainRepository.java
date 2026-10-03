@@ -1,11 +1,7 @@
 package com.project.DomainRegistrationLive.repository;
 
-import com.project.DomainRegistrationLive.dto.*;
-import com.project.DomainRegistrationLive.dto.projection.FeedDomainProjection;
 import com.project.DomainRegistrationLive.entity.Domain;
 import com.project.DomainRegistrationLive.enums.DomainStatus;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

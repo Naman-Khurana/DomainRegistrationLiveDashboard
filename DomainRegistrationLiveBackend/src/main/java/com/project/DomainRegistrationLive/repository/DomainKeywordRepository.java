@@ -1,8 +1,5 @@
 package com.project.DomainRegistrationLive.repository;
 
-import com.project.DomainRegistrationLive.dto.KeywordCountProjection;
-import com.project.DomainRegistrationLive.dto.PrefixCountProjection;
-import com.project.DomainRegistrationLive.dto.SuffixCountProjection;
 import com.project.DomainRegistrationLive.dto.projection.KeywordStatsProjection;
 import com.project.DomainRegistrationLive.dto.projection.RisingKeywordProjection;
 import com.project.DomainRegistrationLive.entity.DomainKeyword;
