@@ -20,6 +20,7 @@ public record SnapshotProperties (
         @DefaultValue("18") int moversLimit,
         @DefaultValue("30") int moversMinToday,
         @DefaultValue("500") int moversCandidates,
+        @DefaultValue("60") int feedPreload,
 
 
         Map<Long, String> registrarNames

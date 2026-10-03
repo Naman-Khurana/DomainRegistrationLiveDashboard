@@ -29,14 +29,14 @@ public final class SnapshotModels {
     public record RepeatEntry(String sld, List<String> words, int tlds, List<String> tldList) {
     }
 
-    /** hr is an ISO hour start in UTC, e.g. 2026-10-01T16:00:00Z */
+
     public record HourEntry(String hr, long count) {
     }
 
     public record MoverEntry(String word, long today, double baseline, double lift) {
     }
 
-    /** seq is the domain id, t is registeredAt in epoch milliseconds (UTC). */
+
     public record FeedEntry(long seq, String domain, String tld,
                             Long registrarId, String registrar, long t) {
     }
@@ -57,7 +57,14 @@ public final class SnapshotModels {
     public record TodayStats(List<MoverEntry> movers) {
     }
 
-    /** Stored in Snapshot.stats. */
     public record StatsPayload(long builtAt, Long lastCycleAt, NowStats now, TodayStats today) {
+    }
+
+    public record SnapshotResponse(long snapshotId, String updatedAt, String lastCycleAt, long serverNow,
+                                   NowStats now, TodayStats today, List<FeedEntry> feed) {
+    }
+
+
+    public record FeedResponse(long snapshotId, List<FeedEntry> feed) {
     }
 }
