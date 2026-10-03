@@ -1,11 +1,12 @@
 import type { StatsPayload, FeedEntry } from "@/types/api";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+const LIVE_URL_PREFIX = "/v1/live";
 
 // ─── Snapshot (server-side safe) ──────────────────────────────────────────────
 
 export async function fetchSnapshot(): Promise<StatsPayload> {
-  const res = await fetch(`${BASE_URL}/v1/snapshot`, {
+  const res = await fetch(`${BASE_URL}${LIVE_URL_PREFIX}/snapshot`, {
     next: { revalidate: 10 },
   });
   if (!res.ok) throw new Error(`Snapshot fetch failed: ${res.status}`);
@@ -15,9 +16,7 @@ export async function fetchSnapshot(): Promise<StatsPayload> {
 // ─── Feed (client-side polling) ───────────────────────────────────────────────
 
 export async function fetchFeed(afterSeq?: number): Promise<FeedEntry[]> {
-  const url = afterSeq != null
-    ? `${BASE_URL}/v1/feed?afterSeq=${afterSeq}`
-    : `${BASE_URL}/v1/feed`;
+  const url = `${BASE_URL}${LIVE_URL_PREFIX}/feed`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`Feed fetch failed: ${res.status}`);
   return res.json();

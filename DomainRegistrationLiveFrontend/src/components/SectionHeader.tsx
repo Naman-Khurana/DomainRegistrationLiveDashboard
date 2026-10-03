@@ -5,23 +5,17 @@ import type { NowStats } from "@/types/api";
 
 interface Props {
   now: NowStats;
-  builtAt: number;
+  ago: number;
 }
 
-function timeAgo(ms: number): string {
-  const diff = Math.floor((Date.now() - ms) / 1000);
-  if (diff < 60) return `${diff}s ago`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  return `${Math.floor(diff / 3600)}h ago`;
+function timeAgo(diffInSeconds: number): string {
+  if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  return `${Math.floor(diffInSeconds / 3600)}h ago`;
 }
 
-export default function SectionHeader({ now, builtAt }: Props) {
-  const [ago, setAgo] = useState(() => timeAgo(builtAt));
-
-  useEffect(() => {
-    const id = setInterval(() => setAgo(timeAgo(builtAt)), 5000);
-    return () => clearInterval(id);
-  }, [builtAt]);
+export default function SectionHeader({ now, ago }: Props) {
+  const agoStr = timeAgo(ago);
 
   const pct = (n: number) =>
     now.format.total > 0 ? Math.round((n / now.format.total) * 100) : 0;
@@ -38,7 +32,7 @@ export default function SectionHeader({ now, builtAt }: Props) {
           <div className="flex items-center gap-2 text-xs font-semibold text-green-600" aria-live="polite">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse-dot" aria-hidden="true" />
             <span>LIVE</span>
-            <span className="text-gray-400 font-normal">· updated {ago}</span>
+            <span className="text-gray-400 font-normal" suppressHydrationWarning>· updated {agoStr}</span>
           </div>
         </div>
         <p className="text-[13px] text-gray-500 max-w-xl leading-relaxed">

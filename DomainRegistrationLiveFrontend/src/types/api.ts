@@ -91,10 +91,14 @@ export interface TodayStats {
 }
 
 export interface StatsPayload {
-  builtAt: number;
+  snapshotId?: number;
+  updatedAt?: number;
+  serverNow?: number;
+  builtAt?: number;
   lastCycleAt: number | null;
   now: NowStats;
   today: TodayStats;
+  feed: FeedEntry[];
 }
 
 // ─── Feed API ─────────────────────────────────────────────────────────────────

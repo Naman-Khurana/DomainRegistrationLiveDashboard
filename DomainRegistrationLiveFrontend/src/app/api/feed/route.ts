@@ -1,23 +1,21 @@
 import { NextResponse } from "next/server";
 import { getMockFeed } from "@/lib/api";
 import type { FeedEntry } from "@/types/api";
+import { FEED_URL } from "@/app/constants/url_constants";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080";
+
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const afterSeq = searchParams.get("afterSeq");
-
   try {
-    const url = afterSeq
-      ? `${BASE_URL}/v1/feed?afterSeq=${afterSeq}`
-      : `${BASE_URL}/v1/feed`;
-
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(FEED_URL, { cache: "no-store" });
     if (!res.ok) throw new Error(`Backend ${res.status}`);
 
-    const data: FeedEntry[] = await res.json();
-    return NextResponse.json(data);
+    const data = await res.json();
+    // Backend may return: array directly, { items: [] }, or { feed: [] }
+    const items: FeedEntry[] = Array.isArray(data)
+      ? data
+      : (data.items ?? data.feed ?? []);
+    return NextResponse.json(items);
   } catch {
     // Fallback mock
     const mock = getMockFeed()

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
@@ -31,12 +33,13 @@ public class LiveServiceImpl implements LiveService {
     @Transactional(readOnly = true)
     @Override
     public Optional<SnapshotResponse> latestSnapshot() {
+        log.info("snapshot request served");
         return loadLatest().map(s -> {
             StatsPayload stats = s.getStats();
             return new SnapshotResponse(
                     s.getId(),
-                    iso(stats.builtAt()),
-                    iso(stats.lastCycleAt()),
+                   stats.builtAt(),
+                    stats.lastCycleAt(),
                     System.currentTimeMillis(),
                     stats.now(),
                     stats.today(),

@@ -36,6 +36,8 @@ public class FeedServiceImpl implements FeedService {
         List<Domain> newestFirst = domainRepository.findByStatusAndIdGreaterThanAndIdLessThanEqualOrderByIdDesc(
                 DomainStatus.PARSED,afterId,toId, Pageable.unpaged()
         );
+
+//        Collections.reverse(newestFirst);
         return toEntries(newestFirst);
     }
 
@@ -73,8 +75,7 @@ public class FeedServiceImpl implements FeedService {
                             .toEpochMilli()
             ));
         }
-        // oldest first
-        Collections.reverse(out);
+
         return out;
     }
 }
