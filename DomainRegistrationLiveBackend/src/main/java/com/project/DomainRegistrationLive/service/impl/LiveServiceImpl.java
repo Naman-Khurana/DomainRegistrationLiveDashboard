@@ -1,7 +1,11 @@
 package com.project.DomainRegistrationLive.service.impl;
 
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
+import com.project.DomainRegistrationLive.entity.Domain;
+import com.project.DomainRegistrationLive.entity.DomainKeyword;
 import com.project.DomainRegistrationLive.entity.Snapshot;
+import com.project.DomainRegistrationLive.enums.DomainStatus;
+import com.project.DomainRegistrationLive.repository.DomainRepository;
 import com.project.DomainRegistrationLive.repository.SnapshotRepository;
 import com.project.DomainRegistrationLive.service.FeedService;
 import com.project.DomainRegistrationLive.service.LiveService;
@@ -14,7 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
 
@@ -26,6 +34,7 @@ public class LiveServiceImpl implements LiveService {
     private final SnapshotRepository snapshotRepository;
     private final FeedService feedService;
     private final SnapshotProperties snapshotProperties;
+    private final DomainRepository domainRepository;
 
 
 
@@ -60,6 +69,34 @@ public class LiveServiceImpl implements LiveService {
     @Override
     public Optional<Snapshot> loadLatest() {
         return snapshotRepository.findTopByOrderByIdDesc();
+    }
+
+    @Override
+    public List<FeedEntry> search(String keyword, Integer windowStart) {
+        String trimmedKeyword = String.join("", keyword.split(" "));
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime windowBegin = currentTime.minusMinutes(windowStart + 60);
+        LocalDateTime windowEnd = currentTime.minusMinutes(windowStart);
+
+        List<Domain> searchResult = new ArrayList<>();
+        if(!trimmedKeyword.startsWith(".")) {
+            searchResult = domainRepository.findBySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+                    trimmedKeyword, windowBegin, windowEnd, DomainStatus.PARSED
+            ).orElse(null);
+        }
+        else{
+            //remove .
+            trimmedKeyword = trimmedKeyword.substring(1);
+            searchResult = domainRepository.findByTldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+                    trimmedKeyword, windowBegin, windowEnd, DomainStatus.PARSED
+            );
+        }
+
+        if(searchResult == null || searchResult.isEmpty()){
+            return List.of();
+        }
+
+        return feedService.toEntries(searchResult);
     }
 
     private static String iso(Long epochMillis) {

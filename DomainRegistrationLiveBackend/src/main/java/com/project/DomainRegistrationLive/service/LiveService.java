@@ -4,14 +4,19 @@ import com.project.DomainRegistrationLive.dto.SnapshotModels;
 import com.project.DomainRegistrationLive.entity.Snapshot;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+
+import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
 
 public interface LiveService {
     @Transactional(readOnly = true)
-    Optional<SnapshotModels.SnapshotResponse> latestSnapshot();
+    Optional<SnapshotResponse> latestSnapshot();
 
     @Transactional(readOnly = true)
-    Optional<SnapshotModels.FeedResponse> initialFeed();
+    Optional<FeedResponse> initialFeed();
 
     Optional<Snapshot> loadLatest();
+
+    List<FeedEntry> search(String keyword, Integer windowStart);
 }

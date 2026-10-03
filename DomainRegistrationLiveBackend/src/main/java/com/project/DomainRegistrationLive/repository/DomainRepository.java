@@ -24,6 +24,20 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
 
     List<Domain> findByIdGreaterThanAndStatusOrderByIdAsc(long lastDomainPassedInFeed, DomainStatus domainStatus);
 
+    Optional<List<Domain>> findBySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+            String keyword,
+            LocalDateTime from,
+            LocalDateTime to,
+            DomainStatus status
+    );
+
+    List<Domain> findByTldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+            String keyword,
+            LocalDateTime from,
+            LocalDateTime to,
+            DomainStatus status
+    );
+
     /** Newest first, for a brand-new session: ids up to and including toId. */
     List<Domain> findByStatusAndIdLessThanEqualOrderByIdDesc(DomainStatus status, Long toId, Pageable pageable);
 

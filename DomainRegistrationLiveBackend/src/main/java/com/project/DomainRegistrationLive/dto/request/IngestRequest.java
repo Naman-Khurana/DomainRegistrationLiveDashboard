@@ -14,6 +14,7 @@ public record IngestRequest(
         String name,
 
         @Positive(message = "Registrar ID must be positive")
+        @NotNull(message = "Registrar ID is required")
         Integer registrarId,
 
         @NotNull(message = "Registered time is required")

@@ -12,11 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
 
@@ -50,7 +47,8 @@ public class FeedServiceImpl implements FeedService {
         return toEntries(newestFirst);
     }
 
-    private List<FeedEntry> toEntries(List<Domain> newestFirst){
+    @Override
+    public List<FeedEntry> toEntries(List<Domain> newestFirst){
         if (newestFirst.isEmpty()) {
             return List.of();
         }
