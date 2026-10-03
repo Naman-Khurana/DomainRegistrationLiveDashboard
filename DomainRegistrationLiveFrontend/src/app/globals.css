@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply font-sans bg-white text-gray-900;
+  }
+  * {
+    @apply box-border m-0 p-0;
+  }
+}
