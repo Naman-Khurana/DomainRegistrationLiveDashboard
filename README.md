@@ -45,7 +45,26 @@ All three services must be running at the same time. Open **three separate termi
 cd DomainRegistrationLiveBackend
 ./mvnw clean install
 ./mvnw spring-boot:run
+
+### PostgreSQL
+
+Create a PostgreSQL database named:
+
+`DomainRegistrationLiveDashboardDB`
+
+The backend uses these defaults:
+
+- Host: `localhost`
+- Port: `5432`
+- Database: `DomainRegistrationLiveDashboardDB`
+- Username: `postgres`
+- Password: `naman1234`
+
+These can be overridden with `DB_URL`, `DB_USER`, and `DB_PASS`.
+
+Hibernate is configured with `ddl-auto: update`, so the required tables are created/updated automatically when the backend starts.
 ```
+
 
 ### Terminal 2: Splitter service
 

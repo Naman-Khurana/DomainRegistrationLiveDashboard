@@ -64,8 +64,7 @@ public class Domain extends BaseEntity {
     @BatchSize(size = 100)
     private List<DomainKeyword> keywords;
 
-    //todo: set nullable = false
-    @Column(name = "keyword_count")
+    @Column(name = "keyword_count", nullable = false)
     @Builder.Default
     private Integer keywordCount = 1;
 
