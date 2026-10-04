@@ -1,109 +1,43 @@
-```md
 # Domain Registration Live
 
-A near real-time domain registration dashboard consisting of three services:
+A near real-time dashboard of newly registered domains: a live feed, rolling statistics (top keywords, TLDs, registrars, rising keywords, daily movers) and more, refreshed every few seconds.
 
-- **Backend** — Spring Boot / Java
-- **Splitter Service** — Python microservice
-- **Frontend** — Next.js
 
-## Project Structure
+| Service  | Stack              | Default port | Role                                              |
+| -------- | ------------------ | ------------ | ------------------------------------------------- |
+| Backend  | Spring Boot (Java) | 8080         | Stores domains, builds snapshots, serves the live API |
+| Splitter | Python             | 8000         | Splits domain names into keywords                 |
+| Frontend | Next.js            | 3000         | The dashboard                                     |
+
+## Project structure
 
 ```text
 DomainRegistrationLiveDashboard/
-│
-├── DomainRegistrationLiveBackend/
-├── SplitterService/
-└── DomainRegistrationLiveFrontend/
+├── DomainRegistrationLiveBackend/    # Spring Boot application
+├── SplitterService/                  # Python microservice
+└── DomainRegistrationLiveFrontend/   # Next.js application
 ```
 
-## Running the Project
+## Prerequisites
 
-All three services need to be running simultaneously.
+- **Java 21 or newer**
+- **PostgreSQL**, running, with a database created for the backend
+- **Python 3** with `venv` and `pip`
+- **Node.js 18.18 or newer** with `npm`
 
-### 1. Backend
+## Configuration
 
-Open a terminal and navigate to the backend directory:
+Check these once before the first run:
 
-```bash
-cd DomainRegistrationLiveBackend
-```
+- **Backend database:** set the PostgreSQL URL, username and password in the backend's configuration under `DomainRegistrationLiveBackend/src/main/resources/`.
+- **Backend → splitter:** the backend must know where the splitter service runs (`splitter.url` in the same configuration).
+- **Frontend → backend:** the API addresses used by the dashboard are in `DomainRegistrationLiveFrontend/app/constants/url_constants`.
 
-Build the Spring Boot project:
+## Running the project
 
-```bash
-./mvnw clean install
-```
+All three services must be running at the same time. Open **three separate terminals** from the project root.
 
-Run the application:
-
-```bash
-./mvnw spring-boot:run
-```
-
----
-
-### 2. Splitter Service
-
-Open a **new terminal** and navigate to the splitter service:
-
-```bash
-cd SplitterService
-```
-
-Create a Python virtual environment:
-
-```bash
-python3 -m venv venv
-```
-
-Activate the virtual environment:
-
-```bash
-source venv/bin/activate
-```
-
-Install the required dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Run the Python microservice:
-
-```bash
-python3 app.py
-```
-
----
-
-### 3. Frontend
-
-Open another **new terminal** and navigate to the frontend directory:
-
-```bash
-cd DomainRegistrationLiveFrontend
-```
-
-Install the dependencies:
-
-```bash
-npm install
-```
-
-Start the Next.js development server:
-
-```bash
-npm run dev
-```
-
-The terminal will display the URL where the frontend is running.
-
-## Quick Start
-
-After cloning the project, run the following in **three separate terminals**.
-
-### Terminal 1 — Backend
+### Terminal 1: Backend
 
 ```bash
 cd DomainRegistrationLiveBackend
@@ -111,7 +45,7 @@ cd DomainRegistrationLiveBackend
 ./mvnw spring-boot:run
 ```
 
-### Terminal 2 — Splitter Service
+### Terminal 2: Splitter service
 
 ```bash
 cd SplitterService
@@ -121,7 +55,9 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-### Terminal 3 — Frontend
+Next time, only `source venv/bin/activate` and `python3 app.py` are needed.
+
+### Terminal 3: Frontend
 
 ```bash
 cd DomainRegistrationLiveFrontend
@@ -129,5 +65,8 @@ npm install
 npm run dev
 ```
 
-Once all three services are running, open the frontend URL shown by the Next.js development server.
-```
+Open the URL printed by the Next.js dev server (usually <http://localhost:3000>).
+
+> **Windows:** use `mvnw.cmd` instead of `./mvnw`, `venv\Scripts\activate` instead of `source venv/bin/activate`, and `python` instead of `python3`.
+
+trl+C` in each terminal. In the splitter terminal, run `deactivate` to leave the virtual environment.
