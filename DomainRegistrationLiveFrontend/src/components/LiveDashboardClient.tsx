@@ -4,31 +4,31 @@ import { useEffect, useState, useRef } from "react";
 import type { StatsPayload, FeedEntry } from "@/types/api";
 
 import SectionHeader from "@/components/SectionHeader";
-import SearchBar from "@/components/SearchBar";
-import RisingKeywords from "@/components/RisingKeywords";
-import LiveFeed from "@/components/LiveFeed";
-import TopStatsContainer from "@/components/TopStatsContainer";
-import WhereRegistered from "@/components/WhereRegistered";
-import WordPosition from "@/components/WordPosition";
-import BiggestMovers from "@/components/BiggestMovers";
-import DailyRegistrarCount from "@/components/DailyRegistrarCount";
+import DashboardContent from "./DashboardContent";
+import DashboardLoader from "./DashboardLoader";
 
 import { SNAPSHOT_URL, FEED_URL } from "@/app/constants/url_constants";
 import { toMillis } from "@/lib/time";
 
-
-interface Props {
-  initialSnapshot: StatsPayload;
-  initialFeed: FeedEntry[];
-}
+/** How long to wait before asking again if the very first snapshot request fails. */
+const INITIAL_RETRY_MS = 3000;
 
 /** When the snapshot was built, in ms.  Works whether the API sends a number or an ISO string. */
 function snapshotMillis(s: StatsPayload): number {
   return toMillis(s.updatedAt) ?? toMillis(s.builtAt) ?? Date.now();
 }
 
-export default function LiveDashboardClient({ initialSnapshot, initialFeed }: Props) {
-  const [snapshot, setSnapshot] = useState<StatsPayload>(initialSnapshot);
+/** The one place that calls the snapshot API: used for the first load and for every poll. */
+async function fetchSnapshot(signal?: AbortSignal): Promise<StatsPayload> {
+  const res = await fetch(SNAPSHOT_URL, { cache: "no-store", signal });
+  if (!res.ok) throw new Error(`Snapshot ${res.status}`);
+  return res.json();
+}
+
+export default function LiveDashboardClient() {
+  // null until the first snapshot arrives; the loader is shown below the header meanwhile
+  const [snapshot, setSnapshot] = useState<StatsPayload | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   // allIncoming = every entry ever received (initial feed + each snapshot's feed).
   // LiveFeed owns deduplication; we just accumulate here.
@@ -36,7 +36,40 @@ export default function LiveDashboardClient({ initialSnapshot, initialFeed }: Pr
   // feedLoading drives the skeleton loader in LiveFeed
   const [feedLoading, setFeedLoading] = useState(true);
 
-  // Fetch the initial feed once from the backend on mount.
+  const [ago, setAgo] = useState(0);
+  const fetchingRef = useRef(false);
+
+  // 1) First snapshot.  Keeps retrying until it succeeds, so a slow or restarting backend just shows the loader.
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const controller = new AbortController();
+
+    const load = async () => {
+      try {
+        const data = await fetchSnapshot(controller.signal);
+        if (cancelled) return;
+        setSnapshot(data);
+        if (data.feed && data.feed.length > 0) {
+          setAllIncoming((prev) => [...prev, ...data.feed]);
+        }
+      } catch {
+        if (cancelled) return;
+        setLoadFailed(true);
+        timer = setTimeout(load, INITIAL_RETRY_MS);
+      }
+    };
+
+    load();
+    return () => {
+      cancelled = true;
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, []);
+
+  // 2) First-load feed, once, in parallel with the snapshot.
+  //    Functional update, so a snapshot feed that arrives first is not lost.
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -45,30 +78,26 @@ export default function LiveDashboardClient({ initialSnapshot, initialFeed }: Pr
         if (!res.ok) throw new Error(`Feed ${res.status}`);
         const data = await res.json();
         // Backend may return: array directly, { items: [] }, or { feed: [] }
-        const items: FeedEntry[] = Array.isArray(data)
-          ? data
-          : (data.items ?? data.feed ?? []);
+        const items: FeedEntry[] = Array.isArray(data) ? data : (data.items ?? data.feed ?? []);
         if (!cancelled && items.length > 0) {
-          setAllIncoming(items);
+          setAllIncoming((prev) => [...prev, ...items]);
         }
       } catch {
-        // backend not reachable – seed from initialFeed so the panel is not empty
-        if (!cancelled && initialFeed.length > 0) {
-          setAllIncoming(initialFeed);
-        }
+        // backend not reachable: the panel starts empty and fills from the snapshots
       } finally {
         if (!cancelled) setFeedLoading(false);
       }
     };
     load();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const [ago, setAgo] = useState(0);
-  const fetchingRef = useRef(false);
-
+  // 3) Polling.  Starts only once the first snapshot is in.
   useEffect(() => {
+    if (!snapshot) return;
+
     const updateAgo = () => {
       const diff = Math.floor((Date.now() - snapshotMillis(snapshot)) / 1000);
       setAgo(diff >= 0 ? diff : 0);
@@ -83,14 +112,11 @@ export default function LiveDashboardClient({ initialSnapshot, initialFeed }: Pr
       if (diff >= 8 && !fetchingRef.current) {
         fetchingRef.current = true;
         try {
-          const res = await fetch(SNAPSHOT_URL, { cache: "no-store" });
-          if (res.ok) {
-            const data: StatsPayload = await res.json();
-            setSnapshot(data);
-            // Append snapshot feed entries to accumulator; LiveFeed deduplicates
-            if (data.feed && data.feed.length > 0) {
-              setAllIncoming((prev) => [...prev, ...data.feed]);
-            }
+          const data = await fetchSnapshot();
+          setSnapshot(data);
+          // Append snapshot feed entries to accumulator; LiveFeed deduplicates
+          if (data.feed && data.feed.length > 0) {
+            setAllIncoming((prev) => [...prev, ...data.feed]);
           }
         } catch (e) {
           console.error("Failed to fetch snapshot:", e);
@@ -103,45 +129,16 @@ export default function LiveDashboardClient({ initialSnapshot, initialFeed }: Pr
     return () => clearInterval(interval);
   }, [snapshot]);
 
-  const { now, today } = snapshot;
-  const totalConfirmed = now.registrars.reduce((s, r) => s + r.count, 0);
-
   return (
     <main className="max-w-[1150px] mx-auto px-5 pb-[60px]">
-      <SectionHeader now={now} ago={ago} />
-      <SearchBar />
+      {/* the LIVE badge appears once there is data; the rest of the header is always visible */}
+      <SectionHeader ago={snapshot ? ago : undefined} />
 
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
-        <div className="flex-1 min-w-0">
-          <div className="mb-6 mt-6">
-            <RisingKeywords data={now.risingKeywords} />
-          </div>
-
-          <TopStatsContainer keywords={now.topKeywords} tlds={now.tlds} />
-
-          <div className="mb-6">
-            <WhereRegistered registrars={now.registrars} />
-          </div>
-
-          <hr className="border-t border-gray-200 my-6" />
-
-          <WordPosition prefixes={now.prefixes} suffixes={now.suffixes} />
-          <BiggestMovers movers={today.movers} />
-
-          <hr className="border-t border-gray-200 my-6" />
-
-          <DailyRegistrarCount
-            registrars={now.registrars}
-            totalConfirmed={totalConfirmed}
-            totalChecked={Math.round(totalConfirmed / 0.872)}
-            unchecked={9408}
-          />
-        </div>
-
-        <div className="w-full lg:w-[360px] flex-shrink-0 mt-6 lg:mt-0">
-          <LiveFeed incomingEntries={allIncoming} isLoading={feedLoading} />
-        </div>
-      </div>
+      {snapshot ? (
+        <DashboardContent snapshot={snapshot} incomingEntries={allIncoming} feedLoading={feedLoading} />
+      ) : (
+        <DashboardLoader failed={loadFailed} />
+      )}
     </main>
   );
 }

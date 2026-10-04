@@ -22,7 +22,7 @@ export default function Navbar() {
               href={tab.href}
               aria-current={isActive ? "page" : undefined}
               className={[
-                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-[13px] font-medium transition-all duration-150 whitespace-nowrap",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border text-[13px] font-medium transition-all duration-150 whitespace-nowrap",
                 isActive
                   ? "bg-[#1e2a3a] text-white border-transparent"
                   : "border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-100",

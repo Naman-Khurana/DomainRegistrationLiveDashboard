@@ -1,8 +1,8 @@
 package com.project.DomainRegistrationLive.service.impl;
 
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
+import com.project.DomainRegistrationLive.dto.response.SearchResponse;
 import com.project.DomainRegistrationLive.entity.Domain;
-import com.project.DomainRegistrationLive.entity.DomainKeyword;
 import com.project.DomainRegistrationLive.entity.Snapshot;
 import com.project.DomainRegistrationLive.enums.DomainStatus;
 import com.project.DomainRegistrationLive.repository.DomainRepository;
@@ -17,12 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
 
@@ -72,14 +69,16 @@ public class LiveServiceImpl implements LiveService {
     }
 
     @Override
-    public List<FeedEntry> search(String keyword, Integer windowStart) {
+    public SearchResponse search(String keyword, Integer windowStart) {
         String trimmedKeyword = String.join("", keyword.split(" "));
         LocalDateTime currentTime = LocalDateTime.now();
         LocalDateTime windowBegin = currentTime.minusMinutes(windowStart + 60);
         LocalDateTime windowEnd = currentTime.minusMinutes(windowStart);
 
+        boolean isTld = trimmedKeyword.startsWith(".");
+
         List<Domain> searchResult = new ArrayList<>();
-        if(!trimmedKeyword.startsWith(".")) {
+        if(!isTld) {
             searchResult = domainRepository.findBySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
                     trimmedKeyword, windowBegin, windowEnd, DomainStatus.PARSED
             ).orElse(null);
@@ -92,11 +91,15 @@ public class LiveServiceImpl implements LiveService {
             );
         }
 
+        String responseKeyword = (isTld ? "." : "") + trimmedKeyword;
+
         if(searchResult == null || searchResult.isEmpty()){
-            return List.of();
+            return new SearchResponse(responseKeyword, List.of());
         }
 
-        return feedService.toEntries(searchResult);
+        List<FeedEntry> results = feedService.toEntries(searchResult);
+
+        return new SearchResponse(responseKeyword, results);
     }
 
     private static String iso(Long epochMillis) {

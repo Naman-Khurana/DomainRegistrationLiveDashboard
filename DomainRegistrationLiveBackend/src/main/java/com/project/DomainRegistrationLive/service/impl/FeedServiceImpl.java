@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
@@ -43,6 +44,8 @@ public class FeedServiceImpl implements FeedService {
     public List<FeedEntry> latest(long toId, int limit) {
         List<Domain> newestFirst = domainRepository.findByStatusAndIdLessThanEqualOrderByIdDesc(
                 DomainStatus.PARSED, toId, PageRequest.of(0, limit));
+
+        Collections.reverse(newestFirst);
 
         return toEntries(newestFirst);
     }

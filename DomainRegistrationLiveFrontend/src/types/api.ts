@@ -107,3 +107,19 @@ export interface FeedResponse {
   items: FeedEntry[];
   latestRegisteredAt: string;
 }
+
+// ─── Search API ───────────────────────────────────────────────────────────────
+
+export interface SearchEntry {
+  seq: number;
+  domain: string;
+  tld: string;
+  registrarId: number;
+  registrar: string;
+  t: number; // epoch ms
+}
+
+export interface SearchResponse {
+  keyword: string;
+  entries: SearchEntry[];
+}
