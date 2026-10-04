@@ -24,7 +24,7 @@ function tldClass(tld: string): string {
 }
 
 export default function RepeatsSection({ repeats }: Props) {
-  if (!repeats || repeats.length === 0) return null;
+  const isEmpty = !repeats || repeats.length === 0;
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
@@ -37,31 +37,37 @@ export default function RepeatsSection({ repeats }: Props) {
           Same name, multiple extensions
         </div>
         <div className="text-[12px] text-gray-400 mt-1 pl-6">
-          one name registered on 2+ TLDs in the last 6h — brand launches &amp; defensive registrations
+          one name registered on 2+ TLDs in the last 1h — brand launches &amp; defensive registrations
         </div>
       </div>
 
       <div className="p-5 pt-2">
-        {repeats.map((r, i) => (
-          <div key={`${r.sld}-${i}`} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-gray-100 last:border-0 gap-3">
-            <div className="text-[14px] font-medium text-teal-800 shrink-0">
-              {r.sld}
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <span className="text-[13px] font-semibold text-teal-900">{r.tlds}×</span>
-              <div className="flex flex-wrap items-center gap-1.5">
-                {r.tldList.map((tld) => {
-                  const displayTld = tld.startsWith('.') ? tld : `.${tld}`;
-                  return (
-                    <span key={tld} className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${tldClass(displayTld)}`}>
-                      {displayTld}
-                    </span>
-                  );
-                })}
+        {isEmpty ? (
+          <div className="py-6 text-center text-[13px] text-gray-400">
+            No such registrations recently.
+          </div>
+        ) : (
+          repeats.map((r, i) => (
+            <div key={`${r.sld}-${i}`} className="flex flex-col sm:flex-row sm:items-center justify-between py-3 border-b border-gray-100 last:border-0 gap-3">
+              <div className="text-[14px] font-medium text-teal-800 shrink-0">
+                {r.sld}
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-[13px] font-semibold text-teal-900">{r.tlds}×</span>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {r.tldList.map((tld) => {
+                    const displayTld = tld.startsWith('.') ? tld : `.${tld}`;
+                    return (
+                      <span key={tld} className={`text-[11px] font-medium px-1.5 py-0.5 rounded ${tldClass(displayTld)}`}>
+                        {displayTld}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

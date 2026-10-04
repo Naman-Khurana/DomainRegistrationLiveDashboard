@@ -1,5 +1,6 @@
 package com.project.DomainRegistrationLive.worker;
 
+import com.project.DomainRegistrationLive.cache.SnapshotCache;
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
 import com.project.DomainRegistrationLive.dto.SnapshotModels;
 import com.project.DomainRegistrationLive.entity.Snapshot;
@@ -33,6 +34,7 @@ public class SnapshotBuilder {
     private final SnapshotProperties snapshotProperties;
     private final FeedService feedService;
     private final SnapshotStatsService snapshotStatsService;
+    private final SnapshotCache snapshotCache;
 
 
     @Scheduled(fixedRateString = "${snapshot.interval:10s}", initialDelayString = "${snapshot.initial-delay:3s}")
@@ -72,6 +74,18 @@ public class SnapshotBuilder {
                         .stats(payload)
                         .feed(feed)
                         .build()));
+
+        SnapshotResponse response = new SnapshotResponse(
+                saved.getId(),
+                payload.builtAt(),
+                payload.lastCycleAt(),
+                System.currentTimeMillis(),
+                payload.now(),
+                payload.today(),
+                saved.getFeed());
+
+        snapshotCache.put(SnapshotCache.LATEST_SNAPSHOT_KEY, response);
+        log.info("snapshot cached");
 
         timer.run("prune", () -> snapshotRepository.deleteOlderThan(saved.getId() - snapshotProperties.snapshotsToKeep()));
     }

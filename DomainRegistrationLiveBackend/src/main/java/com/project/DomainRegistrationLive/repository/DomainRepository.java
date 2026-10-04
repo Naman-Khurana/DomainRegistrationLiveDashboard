@@ -24,14 +24,14 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
 
     List<Domain> findByIdGreaterThanAndStatusOrderByIdAsc(long lastDomainPassedInFeed, DomainStatus domainStatus);
 
-    Optional<List<Domain>> findBySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+    Optional<List<Domain>> findTop200BySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatusOrderByIdDesc(
             String keyword,
             LocalDateTime from,
             LocalDateTime to,
             DomainStatus status
     );
 
-    List<Domain> findByTldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+    List<Domain> findTop200ByTldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatusOrderByIdDesc(
             String keyword,
             LocalDateTime from,
             LocalDateTime to,

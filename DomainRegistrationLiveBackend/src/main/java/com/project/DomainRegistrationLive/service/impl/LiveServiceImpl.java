@@ -1,5 +1,6 @@
 package com.project.DomainRegistrationLive.service.impl;
 
+import com.project.DomainRegistrationLive.cache.SnapshotCache;
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
 import com.project.DomainRegistrationLive.dto.response.SearchResponse;
 import com.project.DomainRegistrationLive.entity.Domain;
@@ -32,6 +33,8 @@ public class LiveServiceImpl implements LiveService {
     private final FeedService feedService;
     private final SnapshotProperties snapshotProperties;
     private final DomainRepository domainRepository;
+    private final SnapshotCache snapshotCache;
+
 
 
 
@@ -40,9 +43,18 @@ public class LiveServiceImpl implements LiveService {
     @Override
     public Optional<SnapshotResponse> latestSnapshot() {
         log.info("snapshot request served");
+
+        Optional<SnapshotResponse> cachedSnapshot = snapshotCache.get(SnapshotCache.LATEST_SNAPSHOT_KEY);
+
+        if(cachedSnapshot.isPresent()){
+            return cachedSnapshot;
+        }
+
+        log.info("Redis miss for snapshot, falling back to DB");
+
         return loadLatest().map(s -> {
             StatsPayload stats = s.getStats();
-            return new SnapshotResponse(
+            SnapshotResponse response = new SnapshotResponse(
                     s.getId(),
                    stats.builtAt(),
                     stats.lastCycleAt(),
@@ -50,6 +62,14 @@ public class LiveServiceImpl implements LiveService {
                     stats.now(),
                     stats.today(),
                     s.getFeed());
+
+            snapshotCache.put(
+                    SnapshotCache.LATEST_SNAPSHOT_KEY,
+                    response
+            );
+            log.info("snapshot cached");
+
+            return response;
         });
     }
 
@@ -79,14 +99,14 @@ public class LiveServiceImpl implements LiveService {
 
         List<Domain> searchResult = new ArrayList<>();
         if(!isTld) {
-            searchResult = domainRepository.findBySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+            searchResult = domainRepository.findTop200BySldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatusOrderByIdDesc(
                     trimmedKeyword, windowBegin, windowEnd, DomainStatus.PARSED
             ).orElse(null);
         }
         else{
             //remove .
             trimmedKeyword = trimmedKeyword.substring(1);
-            searchResult = domainRepository.findByTldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatus(
+            searchResult = domainRepository.findTop200ByTldContainingIgnoreCaseAndRegisteredAtGreaterThanEqualAndRegisteredAtLessThanAndStatusOrderByIdDesc(
                     trimmedKeyword, windowBegin, windowEnd, DomainStatus.PARSED
             );
         }
