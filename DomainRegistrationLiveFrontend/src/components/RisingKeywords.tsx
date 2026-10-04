@@ -7,6 +7,8 @@ type Window = "15m" | "1h" | "3h";
 
 interface Props {
   data: Record<Window, RisingEntry[]>;
+  /** Called with the keyword string when a pill is clicked. */
+  onKeywordClick?: (keyword: string) => void;
 }
 
 const WINDOWS: { key: Window; label: string }[] = [
@@ -15,7 +17,7 @@ const WINDOWS: { key: Window; label: string }[] = [
   { key: "3h", label: "3 hours" },
 ];
 
-export default function RisingKeywords({ data }: Props) {
+export default function RisingKeywords({ data, onKeywordClick }: Props) {
   const [activeWindow, setActiveWindow] = useState<Window>("3h");
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
 
@@ -69,7 +71,10 @@ export default function RisingKeywords({ data }: Props) {
                 role="listitem"
                 aria-pressed={isSelected}
                 id={`kw-${entry.word.toLowerCase()}`}
-                onClick={() => setSelectedWord(isSelected ? null : entry.word)}
+                onClick={() => {
+                  setSelectedWord(isSelected ? null : entry.word);
+                  onKeywordClick?.(entry.word);
+                }}
                 className={[
                   "inline-flex items-center gap-1 px-2.5 py-1 border rounded-full text-[12px] transition-all duration-100 font-sans cursor-pointer",
                   isSelected

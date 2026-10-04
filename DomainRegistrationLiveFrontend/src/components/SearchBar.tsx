@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from "react";
 import type { SearchEntry, SearchResponse } from "@/types/api";
 import { SEARCH_URL } from "@/app/constants/url_constants";
 
@@ -45,9 +45,16 @@ function resultSummary(count: number, keyword: string, h: HValue): string {
   return `${count} new registration${count !== 1 ? "s" : ""} containing "${keyword}" ${range.resultLabel}`;
 }
 
+// ─── Imperative handle ───────────────────────────────────────────────────────
+
+export interface SearchBarHandle {
+  /** Programmatically submit a keyword exactly as if the user typed and pressed Search. */
+  triggerSearch: (keyword: string) => void;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function SearchBar() {
+const SearchBar = forwardRef<SearchBarHandle>(function SearchBar(_, ref) {
   // What the user is currently typing
   const [inputValue, setInputValue] = useState("");
 
@@ -70,6 +77,16 @@ export default function SearchBar() {
 
   // Cancel any in-flight request when the component unmounts
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // ── Shared programmatic search entry point ──
+  // Called by handleSubmit AND by the imperative handle (rising keyword clicks).
+  const submitQuery = (q: string) => {
+    const trimmed = q.trim();
+    if (!trimmed) return;
+    setInputValue(trimmed);
+    setSelectedH(0);          // always reset to "This hour"
+    setSubmittedQuery(trimmed);
+  };
 
   // ── Re-fetch whenever the submitted query or selected time range changes ──
   useEffect(() => {
@@ -108,6 +125,15 @@ export default function SearchBar() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submittedQuery, selectedH]);
 
+  // ── Imperative handle so parent can trigger a search from outside ──
+  useImperativeHandle(ref, () => ({
+    triggerSearch: (keyword: string) => {
+      submitQuery(keyword);
+      // Scroll the search bar into view so the user can see it open
+      setTimeout(() => inputRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 50);
+    },
+  }));
+
   // ── Close / reset ──
   const handleClose = () => {
     abortRef.current?.abort();
@@ -122,13 +148,8 @@ export default function SearchBar() {
   // ── Submit ──
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = inputValue.trim();
-    if (!q) {
-      handleClose();
-      return;
-    }
-    setSelectedH(0);          // reset time range for every new search
-    setSubmittedQuery(q);     // triggers the useEffect above
+    submitQuery(inputValue);
+    if (!inputValue.trim()) handleClose();
   };
 
   // ── Time range change ──
@@ -283,4 +304,6 @@ export default function SearchBar() {
       )}
     </div>
   );
-}
+});
+
+export default SearchBar;

@@ -1,8 +1,8 @@
-import { memo } from "react";
+import { memo, useRef } from "react";
 import type { StatsPayload, FeedEntry } from "@/types/api";
 
 import StatsOverview from "./StatsOverview";
-import SearchBar from "@/components/SearchBar";
+import SearchBar, { type SearchBarHandle } from "@/components/SearchBar";
 import RisingKeywords from "@/components/RisingKeywords";
 import LiveFeed from "@/components/LiveFeed";
 import TopStatsContainer from "@/components/TopStatsContainer";
@@ -24,16 +24,21 @@ interface Props {
 function DashboardContent({ snapshot, incomingEntries, feedLoading }: Props) {
     const { now, today } = snapshot;
     const totalConfirmed = now.registrars.reduce((s, r) => s + r.count, 0);
+    const searchBarRef = useRef<SearchBarHandle>(null);
+
+    const handleKeywordClick = (keyword: string) => {
+        searchBarRef.current?.triggerSearch(keyword);
+    };
 
     return (
         <>
             <StatsOverview now={now} />
-            <SearchBar />
+            <SearchBar ref={searchBarRef} />
 
             <div className="flex flex-col lg:flex-row gap-6 items-start">
                 <div className="flex-1 min-w-0">
                     <div className="mb-6 mt-6">
-                        <RisingKeywords data={now.risingKeywords} />
+                        <RisingKeywords data={now.risingKeywords} onKeywordClick={handleKeywordClick} />
                     </div>
 
                     <TopStatsContainer keywords={now.topKeywords} tlds={now.tlds} />

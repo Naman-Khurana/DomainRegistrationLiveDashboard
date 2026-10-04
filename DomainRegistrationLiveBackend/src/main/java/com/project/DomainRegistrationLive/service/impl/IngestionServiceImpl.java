@@ -74,10 +74,24 @@ public class IngestionServiceImpl implements IngestionService {
 
         for(IngestRequest request : requests){
             String extractedDomain = extractHost(request.name());
+
+            String[] domainArr = extractedDomain.split("\\.");
+            String tld = String.join(
+                    ".",
+                    Arrays.copyOfRange(domainArr, 1, domainArr.length)
+            );
+
+            if (EXCLUDED_TLDS.contains("." + tld)) {
+                log.info("Skipping domain with excluded TLD: {}", extractedDomain);
+                continue;
+            }
+
             if(!seenNames.add(extractedDomain)){
                 log.info("Skipping duplicate registration for domain: {}", extractedDomain);
                 continue;
             }
+
+
 
             Domain newDomain = buildDomain(extractedDomain, request.registrarId(), request.registeredAt());
             domains.add(newDomain);
