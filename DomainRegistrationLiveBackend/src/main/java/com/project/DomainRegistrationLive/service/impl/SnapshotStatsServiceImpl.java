@@ -34,7 +34,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
     private final SnapshotProperties snapshotProperties;
     private final FeedService feedService;
 
-    private static final int OVERFETCH = 40;
+    private static final int OVERFETCH = 5;
     private static final int MIN_REPEAT_TLDS = 2;
     private static final int REPEATS_LIMIT = 100;
     private static final int REPEATS_TLD_LIST = 8;
@@ -49,11 +49,11 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         long total = windowCounters[0];
 
         List<KeywordEntry> topKeywords = timer.time(SnapshotBuildStage.TOP_KEYWORDS.name(),
-                () -> topKeywords(from, now, total));
+                () -> topKeywords(from, now, snapshotProperties.topKeywords()));
 
         KeywordEntry topKeyword = topKeywords.stream().findFirst().orElse(null);
 
-        List<TldEntry> tlds = timer.time(SnapshotBuildStage.TLDS.name(), () -> tlds(from, now, total));
+        List<TldEntry> tlds = timer.time(SnapshotBuildStage.TLDS.name(), () -> tlds(from, now, snapshotProperties.topTlds()));
 
         List<RegistrarEntry> registrars = timer.time(SnapshotBuildStage.REGISTRAR.name(), () -> registrars(from, now));
 
