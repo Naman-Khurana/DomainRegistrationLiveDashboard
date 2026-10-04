@@ -26,7 +26,7 @@ public final class SnapshotModels {
     public record FormatEntry(long total, long multiword, long oneword, long numeric, long hyphen, long short5) {
     }
 
-    public record RepeatEntry(String sld, List<String> words, int tlds, List<String> tldList) {
+    public record RepeatEntry(String sld, int tlds, List<String> tldList) {
     }
 
 
@@ -50,7 +50,7 @@ public final class SnapshotModels {
                            List<WordEntry> prefixes,
                            List<WordEntry> suffixes,
                            FormatEntry format,
-//                           List<RepeatEntry> repeats,
+                           List<RepeatEntry> repeats,
                            List<HourEntry> hourly) {
     }
 

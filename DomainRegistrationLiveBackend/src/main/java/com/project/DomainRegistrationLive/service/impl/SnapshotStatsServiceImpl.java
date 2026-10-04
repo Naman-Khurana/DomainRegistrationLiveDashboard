@@ -38,6 +38,9 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
     private final FeedService feedService;
 
     private static final int OVERFETCH = 40;
+    private static final int MIN_REPEAT_TLDS = 2;
+    private static final int REPEATS_LIMIT = 100;
+    private static final int REPEATS_TLD_LIST = 8;
 
 
     @Override
@@ -69,8 +72,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
         List<MoverEntry> movers = timer.time(SnapshotBuildStage.MOVERS.name(), () -> loadMovers());
 
-        //todo: add repeat attribute
-//        List<RepeatEntry> repeatEntries = timer.time(SnapshotBuildStage.REPEAT.name(), () -> loadRepeat());
+        List<RepeatEntry> repeatTldsEntries = timer.time(SnapshotBuildStage.REPEAT.name(), () -> loadRepeats());
 
 
         NowStats nowStats = new NowStats(
@@ -83,8 +85,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
                 prefix,
                 suffix,
                 format,
-            //todo: add repeats
-                //   repeat,
+                repeatTldsEntries,
                 hourly
         );
 
@@ -260,38 +261,36 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return out.stream().limit(snapshotProperties.moversLimit()).toList();
     }
 
-//    private List<RepeatEntry> loadRepeats() {
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime from = now.minusHours(1);
-//
-//        List<Object[]> top = domainRepository.getRepeatedSlds(from, now, PARSED, MIN_REPEAT_TLDS,
-//                PageRequest.of(0, REPEATS_LIMIT));
-//        if (top.isEmpty()) {
-//            return List.of();
-//        }
-//        List<String> slds = top.stream().map(r -> (String) r[0]).toList();
-//
-//        Map<String, List<String>> tldsBySld = new HashMap<>();
-//        Map<String, Long> firstDomainId = new HashMap<>();
-//        for (Object[] r : domainRepository.getSldTldsFor(slds, from, now, PARSED)) {
-//            String sld = (String) r[0];
-//            tldsBySld.computeIfAbsent(sld, k -> new ArrayList<>()).add((String) r[1]);
-//            firstDomainId.putIfAbsent(sld, longNullSafe(r[2]));
-//        }
-//        Map<Long, List<String>> words = feedService.wordsByDomain(firstDomainId.values());
-//
-//        List<RepeatEntry> out = new ArrayList<>(top.size());
-//        for (Object[] r : top) {
-//            String sld = (String) r[0];
-//            List<String> tldList = tldsBySld.getOrDefault(sld, List.of()).stream().limit(REPEATS_TLD_LIST).toList();
-//            Long id = firstDomainId.get(sld);
-//            out.add(new RepeatEntry(sld,
-//                    id == null ? List.of() : words.getOrDefault(id, List.of()),
-//                    (int) lng(r[1]),
-//                    tldList));
-//        }
-//        return out;
-//    }
+    private List<RepeatEntry> loadRepeats() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime from = now.minusHours(1);
+
+        List<Object[]> top = domainRepository.getRepeatedSlds(from, now, PARSED, MIN_REPEAT_TLDS,
+                PageRequest.of(0, REPEATS_LIMIT));
+        if (top.isEmpty()) {
+            return List.of();
+        }
+        List<String> slds = top.stream().map(r -> (String) r[0]).toList();
+
+        Map<String, List<String>> tldsBySld = new HashMap<>();
+        Map<String, Long> firstDomainId = new HashMap<>();
+        for (Object[] r : domainRepository.getSldTldsFor(slds, from, now, PARSED)) {
+            String sld = (String) r[0];
+            tldsBySld.computeIfAbsent(sld, k -> new ArrayList<>()).add((String) r[1]);
+            firstDomainId.putIfAbsent(sld, longNullSafe(r[2]));
+        }
+
+        List<RepeatEntry> out = new ArrayList<>(top.size());
+        for (Object[] r : top) {
+            String sld = (String) r[0];
+            List<String> tldList = tldsBySld.getOrDefault(sld, List.of()).stream().limit(REPEATS_TLD_LIST).toList();
+            Long id = firstDomainId.get(sld);
+            out.add(new RepeatEntry(sld,
+                    (int) longNullSafe(r[1]),
+                    tldList));
+        }
+        return out;
+    }
 
 
 

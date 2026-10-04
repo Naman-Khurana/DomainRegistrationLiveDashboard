@@ -7,6 +7,7 @@ import RisingKeywords from "@/components/RisingKeywords";
 import LiveFeed from "@/components/LiveFeed";
 import TopStatsContainer from "@/components/TopStatsContainer";
 import WhereRegistered from "@/components/WhereRegistered";
+import RepeatsSection from "@/components/RepeatsSection";
 import WordPosition from "@/components/WordPosition";
 import BiggestMovers from "@/components/BiggestMovers";
 import DailyRegistrarCount from "@/components/DailyRegistrarCount";
@@ -42,6 +43,8 @@ function DashboardContent({ snapshot, incomingEntries, feedLoading }: Props) {
                     </div>
 
                     <TopStatsContainer keywords={now.topKeywords} tlds={now.tlds} />
+
+                    <RepeatsSection repeats={now.repeats} />
 
                     <div className="mb-6">
                         <WhereRegistered registrars={now.registrars} />

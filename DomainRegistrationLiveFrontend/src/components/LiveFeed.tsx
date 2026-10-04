@@ -172,7 +172,7 @@ export default function LiveFeed({ incomingEntries, isLoading = false }: Props) 
       </div>
 
       {/* ── Feed list ── */}
-      <div className="max-h-[480px] overflow-y-auto px-4" aria-live="polite" aria-label="Live domain registrations">
+      <div className="max-h-[480px] overflow-y-auto " aria-live="polite" aria-label="Live domain registrations">
         {isLoading ? (
           <div className="py-2" aria-busy="true" aria-label="Loading feed">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -194,7 +194,8 @@ export default function LiveFeed({ incomingEntries, isLoading = false }: Props) 
           visible.map((item) => (
             <div
               key={`${item.seq}-${item.domain}`}
-              className={`flex items-center justify-between py-2 border-b border-gray-100 last:border-0 ${newSeqs.has(item.seq) ? "feed-item-new" : ""}`}
+              className={`flex items-center justify-between px-4 py-2 border-b border-gray-100 last:border-0 ${newSeqs.has(item.seq) ? "feed-item-new" : ""
+                }`}
             >
               <div>
                 <div className="text-[13px] font-medium text-gray-900">{item.domain}</div>

@@ -80,7 +80,6 @@ export default function TopTLDs({ tlds, slot }: Props) {
       </div>
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-100 text-[11px]">
         <a href="#tlds" className="text-blue-600 hover:underline flex items-center gap-1 font-medium">
-          Research any TLD over 24h-30 days, or compare up to four →
         </a>
       </div>
     </div>

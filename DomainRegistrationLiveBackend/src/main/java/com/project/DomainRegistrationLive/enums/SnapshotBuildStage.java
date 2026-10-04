@@ -15,5 +15,6 @@ public enum SnapshotBuildStage{
     SUFFIX,
     FORMAT,
     HOURLY,
-    MOVERS;
+    MOVERS,
+    REPEAT;
 }

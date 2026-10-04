@@ -1,8 +1,6 @@
 interface Props {
-  /**
-   * Seconds since the snapshot was built.
-   * Leave it undefined while the first snapshot is loading: the LIVE badge is hidden until then.
-   */
+  // Seconds since the snapshot was built.
+  // Leave it undefined while the first snapshot is loading: the LIVE badge is hidden until then.
   ago?: number;
 }
 
@@ -54,7 +52,7 @@ export default function SectionHeader({ ago }: Props) {
       </div>
 
       {/* ── Notice banner ── */}
-      <div className="bg-amber-50 border border-amber-300 rounded text-[12px] text-amber-800 px-3.5 py-2 mb-2.5" role="note">
+      <div className="bg-amber-50 border border-amber-300 rounded-full text-[12px] text-amber-800 px-3.5 py-2 mb-2.5" role="note">
         Live sample of registry-confirmed new registrations — not every registration. The complete daily count is
         further down the page.
       </div>
