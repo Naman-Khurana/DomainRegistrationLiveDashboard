@@ -2,6 +2,7 @@ package com.project.DomainRegistrationLive.service.impl;
 
 import com.project.DomainRegistrationLive.cache.SnapshotCache;
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
+import com.project.DomainRegistrationLive.dto.response.BlockResponse;
 import com.project.DomainRegistrationLive.dto.response.DailySummaryResponse;
 import com.project.DomainRegistrationLive.dto.response.SearchResponse;
 import com.project.DomainRegistrationLive.entity.Domain;
@@ -15,6 +16,7 @@ import com.project.DomainRegistrationLive.service.LiveService;
 import com.project.DomainRegistrationLive.service.SnapshotStatsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -132,6 +134,17 @@ public class LiveServiceImpl implements LiveService {
         return new DailySummaryResponse(date, registrarEntries);
     }
 
+    @Override
+    public BlockResponse block(int i) {
+        LocalDateTime currentTime = LocalDateTime.now();
+        LocalDateTime from = currentTime.minusMinutes(60 + i);
+        LocalDateTime to = currentTime.minusMinutes(i);
+
+        List<KeywordEntry> topKeywords = snapshotStatsService.topKeywords(from, to, snapshotProperties.topKeywords());
+        List<TldEntry> topTlds = snapshotStatsService.tlds(from, to, snapshotProperties.topTlds());
+
+        return new BlockResponse(topKeywords, topTlds);
+    }
 
 
     private static String iso(Long epochMillis) {

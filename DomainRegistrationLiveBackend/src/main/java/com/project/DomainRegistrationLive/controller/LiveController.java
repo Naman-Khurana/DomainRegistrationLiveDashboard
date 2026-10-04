@@ -1,5 +1,6 @@
 package com.project.DomainRegistrationLive.controller;
 
+import com.project.DomainRegistrationLive.dto.response.BlockResponse;
 import com.project.DomainRegistrationLive.dto.response.DailySummaryResponse;
 import com.project.DomainRegistrationLive.dto.response.SearchResponse;
 import com.project.DomainRegistrationLive.exception.ErrorResponse;
@@ -53,6 +54,12 @@ public class LiveController {
             throw new BadRequestException("Invalid date");
         }
         return ResponseEntity.ok().body(liveService.daily(LocalDate.of(date[0],date[1],date[2])));
+    }
+
+    @GetMapping("/block")
+    public ResponseEntity<BlockResponse> block(@RequestParam(required = false, defaultValue = "0") String t) throws BadRequestException {
+
+        return ResponseEntity.ok().body(liveService.block(Integer.parseInt(t)));
     }
 
 
