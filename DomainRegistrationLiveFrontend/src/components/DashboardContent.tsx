@@ -53,16 +53,11 @@ function DashboardContent({ snapshot, incomingEntries, feedLoading }: Props) {
                     <hr className="border-t border-gray-200 my-6" />
 
                     <WordPosition prefixes={now.prefixes} suffixes={now.suffixes} />
-                    <BiggestMovers movers={today.movers} />
+                    {/* <BiggestMovers movers={today.movers} /> */}
 
                     <hr className="border-t border-gray-200 my-6" />
 
-                    <DailyRegistrarCount
-                        registrars={now.registrars}
-                        totalConfirmed={totalConfirmed}
-                        totalChecked={totalConfirmed}
-                        unchecked={0}
-                    />
+                    <DailyRegistrarCount />
                 </div>
 
                 <div className="w-full lg:w-[360px] flex-shrink-0 mt-6 lg:mt-0">

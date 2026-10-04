@@ -124,3 +124,11 @@ export interface SearchResponse {
   keyword: string;
   entries: SearchEntry[];
 }
+
+// ─── Daily API ────────────────────────────────────────────────────────────────
+
+export interface DailyResponse {
+  date: string;
+  entries: RegistrarEntry[];
+}
+

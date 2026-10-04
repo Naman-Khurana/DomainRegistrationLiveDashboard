@@ -3,9 +3,6 @@ package com.project.DomainRegistrationLive.service.impl;
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
 import com.project.DomainRegistrationLive.dto.projection.KeywordStatsProjection;
 import com.project.DomainRegistrationLive.dto.projection.RisingKeywordProjection;
-import com.project.DomainRegistrationLive.dto.response.RisingKeyword;
-import com.project.DomainRegistrationLive.entity.Snapshot;
-import com.project.DomainRegistrationLive.enums.DomainStatus;
 import com.project.DomainRegistrationLive.enums.SnapshotBuildStage;
 import com.project.DomainRegistrationLive.repository.DomainKeywordRepository;
 import com.project.DomainRegistrationLive.repository.DomainRepository;
@@ -99,7 +96,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
     }
 
-    private long[] counter(LocalDateTime from, LocalDateTime now) {
+    @Override
+    public long[] counter(LocalDateTime from, LocalDateTime now) {
 
         Object[] windowCounters = domainRepository.getWindowCounters
                 (from, now.minusMinutes(10), now.minusMinutes(1), now, PARSED).getFirst();
@@ -107,7 +105,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return new long[] { longNullSafe(windowCounters[0]), longNullSafe(windowCounters[1]), longNullSafe(windowCounters[2])};
     }
 
-    private List<KeywordEntry> topKeywords(LocalDateTime from, LocalDateTime now, long total){
+    @Override
+    public List<KeywordEntry> topKeywords(LocalDateTime from, LocalDateTime now, long total){
         List<KeywordStatsProjection> rows =
                 domainKeywordRepository.getKeywordStats(from, now, PageRequest.of(0,
                         snapshotProperties.topKeywords() + OVERFETCH));
@@ -121,7 +120,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
                 .toList();
     }
 
-    private List<TldEntry> tlds(LocalDateTime from, LocalDateTime now, long total){
+    @Override
+    public List<TldEntry> tlds(LocalDateTime from, LocalDateTime now, long total){
         List<Object[]> rows = domainRepository.getTldCounts(from, now, PARSED,
                 PageRequest.of(0, snapshotProperties.topTlds()));
         List<TldEntry> out = new ArrayList<>(rows.size());
@@ -132,7 +132,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return out;
     }
 
-    private List<RegistrarEntry> registrars(LocalDateTime from, LocalDateTime now) {
+    @Override
+    public List<RegistrarEntry> registrars(LocalDateTime from, LocalDateTime now) {
         List<Object[]> topRegistrars = domainRepository.getRegistrarCounts(from, now, PARSED, PageRequest.of(0, snapshotProperties.topRegistrars()));
         List<RegistrarEntry> out = new ArrayList<>(topRegistrars.size());
         for (Object[] reg : topRegistrars) {
@@ -153,7 +154,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
     // heavy
 
-    private Map<String, List<RisingEntry>> loadRising() {
+    @Override
+    public Map<String, List<RisingEntry>> loadRising() {
         LocalDateTime now = LocalDateTime.now();
         List<RisingKeywordProjection> rows = domainKeywordRepository.getRisingKeywordStats(
                 now.minusMinutes(15), now.minusMinutes(30),
@@ -168,9 +170,10 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return out;
     }
 
-    private List<RisingEntry> rank(List<RisingKeywordProjection> rows,
-                                   ToLongFunction<RisingKeywordProjection> recentOf,
-                                   ToLongFunction<RisingKeywordProjection> priorOf) {
+    @Override
+    public List<RisingEntry> rank(List<RisingKeywordProjection> rows,
+                                  ToLongFunction<RisingKeywordProjection> recentOf,
+                                  ToLongFunction<RisingKeywordProjection> priorOf) {
         List<RisingEntry> list = new ArrayList<>();
         for (RisingKeywordProjection r : rows) {
             long recent = recentOf.applyAsLong(r);
@@ -189,7 +192,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
 
 
-    private List<WordEntry> edges(boolean prefix, LocalDateTime from, LocalDateTime now) {
+    @Override
+    public List<WordEntry> edges(boolean prefix, LocalDateTime from, LocalDateTime now) {
         PageRequest page = PageRequest.of(0, snapshotProperties.topPrefixSuffix() + OVERFETCH);
         List<Object[]> rows = prefix ? domainKeywordRepository.getPrefixCounts(from, now, page)
                 : domainKeywordRepository.getSuffixCounts(from, now, page);
@@ -201,7 +205,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
                 .toList();
     }
 
-    private FormatEntry loadFormat() {
+    @Override
+    public FormatEntry loadFormat() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.minusHours(1);
         Object[] r = domainRepository.getFormatCounts(from, now, PARSED).getFirst();
@@ -209,7 +214,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return new FormatEntry(total, longNullSafe(r[4]), longNullSafe(r[5]), longNullSafe(r[3]), longNullSafe(r[1]), longNullSafe(r[2]));
     }
 
-    private List<HourEntry> loadHourly() {
+    @Override
+    public List<HourEntry> loadHourly() {
         LocalDateTime end = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS);
         LocalDateTime start = end.minusHours(23);
 
@@ -226,7 +232,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return out;
     }
 
-    private List<MoverEntry> loadMovers() {
+    @Override
+    public List<MoverEntry> loadMovers() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime todayStart = now.toLocalDate().atStartOfDay();
 
@@ -260,7 +267,8 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         return out.stream().limit(snapshotProperties.moversLimit()).toList();
     }
 
-    private List<RepeatEntry> loadRepeats() {
+    @Override
+    public List<RepeatEntry> loadRepeats() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.minusHours(1);
 
