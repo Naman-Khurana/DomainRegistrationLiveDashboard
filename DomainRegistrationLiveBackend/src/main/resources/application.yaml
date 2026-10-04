@@ -13,6 +13,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch-size: 100
+        order-inserts: true
 
 splitter:
   url: http://localhost:8000

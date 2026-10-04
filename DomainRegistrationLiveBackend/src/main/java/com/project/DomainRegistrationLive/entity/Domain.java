@@ -3,6 +3,7 @@ package com.project.DomainRegistrationLive.entity;
 import com.project.DomainRegistrationLive.enums.DomainStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,7 +61,13 @@ public class Domain extends BaseEntity {
     private LocalDateTime parsedAt;
 
     @OneToMany(mappedBy = "domain")
+    @BatchSize(size = 100)
     private List<DomainKeyword> keywords;
+
+    //todo: set nullable = false
+    @Column(name = "keyword_count")
+    @Builder.Default
+    private Integer keywordCount = 1;
 
 
 }

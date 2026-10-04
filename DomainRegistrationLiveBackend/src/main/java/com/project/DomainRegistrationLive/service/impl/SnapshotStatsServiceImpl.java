@@ -72,7 +72,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
         List<MoverEntry> movers = timer.time(SnapshotBuildStage.MOVERS.name(), () -> loadMovers());
 
-        List<RepeatEntry> repeatTldsEntries = timer.time(SnapshotBuildStage.REPEAT.name(), () -> loadRepeats());
+        List<RepeatEntry> repeatSldsEntries = timer.time(SnapshotBuildStage.REPEAT.name(), () -> loadRepeats());
 
 
         NowStats nowStats = new NowStats(
@@ -85,7 +85,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
                 prefix,
                 suffix,
                 format,
-                repeatTldsEntries,
+                repeatSldsEntries,
                 hourly
         );
 
@@ -206,8 +206,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         LocalDateTime from = now.minusHours(1);
         Object[] r = domainRepository.getFormatCounts(from, now, PARSED).get(0);
         long total = longNullSafe(r[0]);
-        long multiword = Math.min(domainKeywordRepository.countMultiWordDomains(from, now), total);
-        return new FormatEntry(total, multiword, total - multiword, longNullSafe(r[3]), longNullSafe(r[1]), longNullSafe(r[2]));
+        return new FormatEntry(total, longNullSafe(r[4]), longNullSafe(r[5]), longNullSafe(r[3]), longNullSafe(r[1]), longNullSafe(r[2]));
     }
 
     private List<HourEntry> loadHourly() {

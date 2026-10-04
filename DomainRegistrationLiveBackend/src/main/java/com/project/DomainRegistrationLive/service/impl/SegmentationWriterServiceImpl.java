@@ -63,7 +63,7 @@ public class SegmentationWriterServiceImpl implements SegmentationWriterService 
                 domainKeywords.add(domainKeyword);
                 position++;
             }
-
+            domain.setKeywordCount(keywords.size());
             domain.setStatus(DomainStatus.PARSED);
         }
 

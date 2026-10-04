@@ -90,3 +90,9 @@ Open the URL printed by the Next.js dev server (usually <http://localhost:3000>)
 - **PostgreSQL stores each snapshot; Redis caches it** for quick reads.
 - **The frontend polls instead of keeping a connection open.** A snapshot only changes every 8 seconds, so polling faster would return the same data.
 - **The feed endpoint is called once;** after that the live list grows from each snapshot's `feed`, so the page makes one recurring request.
+
+### Assumptions / Limitations
+1. It is assumed that domain registrations are received through the /v1/ingest endpoint.
+2. All ingested registrations are assumed to be confirmed and valid.
+3. Registrar ID-to-name mapping has not been implemented; registrar names are represented as ICANN #<ID>.
+4. The implementation is an associated implementation of the dotweekly.com/keywords/live page, with some features simplified or omitted due to time constraints.

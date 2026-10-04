@@ -206,12 +206,14 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
 //    );
 
 
-    // Format.  One row: [total, hyphen, short5, numeric]
+    // Format.  One row: [total, hyphen, short5, numeric, multiword, oneword]
     @Query("""
             SELECT COUNT(*),
                    COUNT(CASE WHEN d.sld LIKE '%-%' THEN 1 END),
                    COUNT(CASE WHEN LENGTH(d.sld) <= 5 THEN 1 END),
-                   COUNT(CASE WHEN LOWER(d.sld) = UPPER(d.sld) AND d.sld NOT LIKE '%-%' THEN 1 END)
+                   COUNT(CASE WHEN LOWER(d.sld) = UPPER(d.sld) AND d.sld NOT LIKE '%-%' THEN 1 END),
+                   COUNT(CASE WHEN d.keywordCount > 1 THEN 1 END),
+                   COUNT(CASE WHEN d.keywordCount = 1 THEN 1 END)
             FROM Domain d
             WHERE d.status = :status
               AND d.registeredAt >= :windowStart
