@@ -60,8 +60,8 @@ function DashboardContent({ snapshot, incomingEntries, feedLoading }: Props) {
                     <DailyRegistrarCount
                         registrars={now.registrars}
                         totalConfirmed={totalConfirmed}
-                        totalChecked={Math.round(totalConfirmed / 0.872)}
-                        unchecked={9408}
+                        totalChecked={totalConfirmed}
+                        unchecked={0}
                     />
                 </div>
 

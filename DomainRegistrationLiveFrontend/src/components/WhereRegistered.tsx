@@ -38,6 +38,8 @@ export default function WhereRegistered({ registrars }: Props) {
           New names seen on the live feed in the past hour, with the registrar each registry records.
           Only names registered in the last 72 hours count, and a few extensions (e.g. .ru) aren&apos;t covered.
           For complete totals, see the daily count below.
+          <br />
+          <b>Note:</b> Due to the unavailability of a reliable dataset with valid IANA registrar IDs and the absence of registrar ID-to-name mapping, registrar names are represented using the format IANA #ID for simplicity.
         </p>
       </div>
     </div>

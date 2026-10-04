@@ -204,7 +204,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
     private FormatEntry loadFormat() {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime from = now.minusHours(1);
-        Object[] r = domainRepository.getFormatCounts(from, now, PARSED).get(0);
+        Object[] r = domainRepository.getFormatCounts(from, now, PARSED).getFirst();
         long total = longNullSafe(r[0]);
         return new FormatEntry(total, longNullSafe(r[4]), longNullSafe(r[5]), longNullSafe(r[3]), longNullSafe(r[1]), longNullSafe(r[2]));
     }
