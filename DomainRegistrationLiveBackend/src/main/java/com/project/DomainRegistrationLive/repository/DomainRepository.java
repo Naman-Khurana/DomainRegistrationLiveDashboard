@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -49,41 +48,7 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
 
 
 
-//    @Query("""
-//    SELECT new com.project.DomainRegistrationLive.dto.DomainStatsProjection(
-//        COALESCE(SUM(
-//            CASE
-//                WHEN d.registeredAt >= :h60Start THEN 1
-//                ELSE 0
-//            END
-//        ), 0),
-//
-//        COALESCE(SUM(
-//            CASE
-//                WHEN d.registeredAt >= :m10Start THEN 1
-//                ELSE 0
-//            END
-//        ), 0),
-//
-//        COALESCE(SUM(
-//            CASE
-//                WHEN d.registeredAt >= :m1Start THEN 1
-//                ELSE 0
-//            END
-//        ), 0)
-//    )
-//    FROM Domain d
-//    WHERE d.status = :status
-//      AND d.registeredAt >= :h60Start
-//      AND d.registeredAt < :now
-//    """)
-//    DomainStatsProjection getDomainStats(
-//            @Param("h60Start") LocalDateTime h60Start,
-//            @Param("m10Start") LocalDateTime m10Start,
-//            @Param("m1Start") LocalDateTime m1Start,
-//            @Param("now") LocalDateTime now,
-//            @Param("status") DomainStatus status
-//    );
+
 
     // Counters.  One row: [h60, m10, m1]
     @Query("""
@@ -102,24 +67,6 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
                                      @Param("status") DomainStatus status);
 
 
-//
-//    @Query("""
-//    SELECT new com.project.DomainRegistrationLive.dto.TldCountProjection(
-//        d.tld,
-//        COUNT(d.id)
-//    )
-//    FROM Domain d
-//    WHERE d.status = :status
-//      AND d.registeredAt >= :windowStart
-//      AND d.registeredAt < :now
-//    GROUP BY d.tld
-//    ORDER BY COUNT(d.id) DESC, d.tld ASC
-//    """)
-//    List<TldCountProjection> getTldCounts(
-//            @Param("windowStart") LocalDateTime windowStart,
-//            @Param("now") LocalDateTime now,
-//            @Param("status") DomainStatus status
-//    );
 
 
     // TLDs.  Rows: [tld, count]
@@ -139,24 +86,6 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
                                 Pageable pageable);
 
 
-//    @Query("""
-//    SELECT new com.project.DomainRegistrationLive.dto.RegistrarCountProjection(
-//        d.registrarId,
-//        COUNT(d.id)
-//    )
-//    FROM Domain d
-//    WHERE d.status = :status
-//      AND d.registeredAt >= :windowStart
-//      AND d.registeredAt < :now
-//      AND d.registrarId IS NOT NULL
-//    GROUP BY d.registrarId
-//    ORDER BY COUNT(d.id) DESC, d.registrarId ASC
-//    """)
-//    List<RegistrarCountProjection> getRegistrarCounts(
-//            @Param("windowStart") LocalDateTime windowStart,
-//            @Param("now") LocalDateTime now,
-//            @Param("status") DomainStatus status
-//    );
 
 
     // Registrars.  Rows: [registrarId, count]
@@ -175,35 +104,7 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
                                       @Param("status") DomainStatus status,
                                       Pageable pageable);
 
-//
-//    @Query("""
-//    SELECT new com.project.DomainRegistrationLive.dto.DomainFormatProjection(
-//        COUNT(d.id),
-//
-//        SUM(
-//            CASE
-//                WHEN d.sld LIKE '%-%' THEN 1
-//                ELSE 0
-//            END
-//        ),
-//
-//        SUM(
-//            CASE
-//                WHEN LENGTH(d.sld) <= 5 THEN 1
-//                ELSE 0
-//            END
-//        )
-//    )
-//    FROM Domain d
-//    WHERE d.status = :status
-//      AND d.registeredAt >= :windowStart
-//      AND d.registeredAt < :now
-//    """)
-//    DomainFormatProjection getDomainFormat(
-//            @Param("windowStart") LocalDateTime windowStart,
-//            @Param("now") LocalDateTime now,
-//            @Param("status") DomainStatus status
-//    );
+
 
 
     // Format.  One row: [total, hyphen, short5, numeric, multiword, oneword]
@@ -224,43 +125,27 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
                                    @Param("status") DomainStatus status);
 
 
-//    @Query("""
-//    SELECT new com.project.DomainRegistrationLive.dto.RepeatedSldProjection(
-//        d.sld,
-//        COUNT(DISTINCT d.tld)
-//    )
-//    FROM Domain d
-//    WHERE d.status = :status
-//      AND d.registeredAt >= :windowStart
-//      AND d.registeredAt < :now
-//    GROUP BY d.sld
-//    HAVING COUNT(DISTINCT d.tld) > 1
-//    ORDER BY COUNT(DISTINCT d.tld) DESC, d.sld ASC
-//    """)
-//    List<RepeatedSldProjection> getRepeatedSlds(
-//            @Param("windowStart") LocalDateTime windowStart,
-//            @Param("now") LocalDateTime now,
-//            @Param("status") DomainStatus status
-//    );
+    @Query("""
+        SELECT d.registrarId,
+               COUNT(d.id)
+        FROM Domain d
+        WHERE d.status = :status
+          AND d.registeredAt >= :windowStart
+          AND d.registeredAt < :now
+          AND (:tld IS NULL OR d.tld = :tld)
+          AND d.registrarId IS NOT NULL
+        GROUP BY d.registrarId
+        ORDER BY COUNT(d.id) DESC, d.registrarId ASC
+        """)
+    List<Object[]> getRegistrarCountsV2(
+            @Param("windowStart") LocalDateTime windowStart,
+            @Param("now") LocalDateTime now,
+            @Param("tld") String tld,
+            @Param("status") DomainStatus status
+    );
 
 
 
-//    @Query("""
-//        SELECT new com.project.DomainRegistrationLive.dto.SldTldProjection(
-//            d.sld,
-//            d.tld
-//        )
-//        FROM Domain d
-//        WHERE d.status = :status
-//          AND d.registeredAt >= :windowStart
-//          AND d.registeredAt < :now
-//        ORDER BY d.sld ASC, d.tld ASC
-//        """)
-//    List<SldTldProjection> getSldTlds(
-//            @Param("windowStart") LocalDateTime windowStart,
-//            @Param("now") LocalDateTime now,
-//            @Param("status") DomainStatus status
-//    );
 
 
     // Repeats.  Rows: [sld, distinctTldCount]   (grouped and limited in SQL)
@@ -321,44 +206,6 @@ public interface DomainRepository extends JpaRepository<Domain, Long> {
 
 
 
-//    @Query(value = """
-//    SELECT
-//        x.id,
-//        x.name,
-//        x.tld,
-//        x.registrar_id,
-//        x.registered_at
-//    FROM (
-//        SELECT
-//            d.id,
-//            d.name,
-//            d.tld,
-//            d.registrar_id,
-//            d.registered_at,
-//
-//            COUNT(*) FILTER (
-//                WHERE d.registered_at > :since
-//            ) OVER () AS new_count,
-//
-//            ROW_NUMBER() OVER (
-//                ORDER BY d.registered_at DESC
-//            ) AS row_num
-//
-//        FROM domain d
-//        WHERE d.status = :status
-//    ) x
-//    WHERE
-//        x.new_count > 60
-//        OR x.registered_at > :since
-//        OR x.row_num <= 60
-//
-//    ORDER BY x.registered_at DESC
-//    """,
-//            nativeQuery = true)
-//    List<FeedDomainProjection> getFeed(
-//            @Param("since") LocalDateTime since,
-//            @Param("status") String status
-//    );
 
     @Query("SELECT MIN(d.registeredAt) FROM Domain d WHERE d.status = :status")
     LocalDateTime findEarliestRegisteredAt(@Param("status") DomainStatus status);

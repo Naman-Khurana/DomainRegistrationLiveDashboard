@@ -2,6 +2,7 @@ package com.project.DomainRegistrationLive.service.impl;
 
 import com.project.DomainRegistrationLive.cache.SnapshotCache;
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
+import com.project.DomainRegistrationLive.dto.response.DailySummaryResponse;
 import com.project.DomainRegistrationLive.dto.response.SearchResponse;
 import com.project.DomainRegistrationLive.entity.Domain;
 import com.project.DomainRegistrationLive.entity.Snapshot;
@@ -11,12 +12,14 @@ import com.project.DomainRegistrationLive.repository.SnapshotRepository;
 import com.project.DomainRegistrationLive.service.FeedService;
 import com.project.DomainRegistrationLive.service.LiveService;
 //import jakarta.transaction.Transactional;
+import com.project.DomainRegistrationLive.service.SnapshotStatsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +37,7 @@ public class LiveServiceImpl implements LiveService {
     private final SnapshotProperties snapshotProperties;
     private final DomainRepository domainRepository;
     private final SnapshotCache snapshotCache;
+    private final SnapshotStatsService snapshotStatsService;
 
 
 
@@ -121,6 +125,14 @@ public class LiveServiceImpl implements LiveService {
 
         return new SearchResponse(responseKeyword, results);
     }
+
+    @Override
+    public DailySummaryResponse daily(LocalDate date) {
+        List<RegistrarEntry> registrarEntries = snapshotStatsService.registrars(date.atStartOfDay(),date.plusDays(1).atStartOfDay());
+        return new DailySummaryResponse(date, registrarEntries);
+    }
+
+
 
     private static String iso(Long epochMillis) {
         return epochMillis == null ? null : Instant.ofEpochMilli(epochMillis).toString();
