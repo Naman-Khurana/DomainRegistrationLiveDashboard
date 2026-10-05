@@ -83,6 +83,7 @@ export interface NowStats {
   prefixes: WordEntry[];
   suffixes: WordEntry[];
   format: FormatEntry;
+  repeats: RepeatEntry[];
   hourly: HourEntry[];
 }
 
@@ -99,7 +100,6 @@ export interface StatsPayload {
   now: NowStats;
   today: TodayStats;
   feed: FeedEntry[];
-  repeats: RepeatEntry[];
 }
 
 // ─── Feed API ─────────────────────────────────────────────────────────────────
