@@ -11,14 +11,17 @@ import java.util.List;
 @Entity
 @Table(name = "domain",
     indexes = {
-
         @Index(
-            name = "dmn_status_registered_at_idx",
-            columnList = "registered_at, status"
+                name = "dmn_window_idx",
+                columnList = "registered_at, status, tld, registrar_id, sld, keyword_count"
         ),
         @Index(
-                name = "dmn_status_idx",
-                columnList = "status"
+                name = "dmn_status_created_idx",
+                columnList = "status, created_at, id"
+        ),
+        @Index(
+                name = "dmn_created_at_idx",
+                columnList = "created_at"
         )
     })
 @Getter
