@@ -15,7 +15,7 @@ Three services, backed by PostgreSQL and Redis:
 ```text
 DomainRegistrationLiveDashboard/
 ├── DomainRegistrationLiveBackend/    # Spring Boot application
-├── SplitterService/                  # Python microservice
+├── SplitterService/                  # Python Flask service for splitting domains 
 └── DomainRegistrationLiveFrontend/   # Next.js application
 ```
 
