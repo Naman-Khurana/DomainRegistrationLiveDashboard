@@ -36,7 +36,7 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
                                                  @Param("now") LocalDateTime now,
                                                  Pageable pageable);
 
-    /** Rows: [keyword, count] */
+    // [keyword, count]
     @Query("""
             SELECT dk.keyword, COUNT(*)
             FROM DomainKeyword dk
@@ -50,7 +50,7 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
                                    @Param("now") LocalDateTime now,
                                    Pageable pageable);
 
-    /** Rows: [keyword, count] */
+    // Rows: [keyword, count]
     @Query("""
             SELECT dk.keyword, COUNT(*)
             FROM DomainKeyword dk
@@ -64,10 +64,7 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
                                    @Param("now") LocalDateTime now,
                                    Pageable pageable);
 
-    /**
-     * Number of multi-word domains in the window.  Every multi-word domain has exactly
-     * one first-word row, and one-word domains have none (they count as neither prefix nor suffix).
-     */
+     // Number of multi-word domains in the window.  Every multi-word domain has exactly
     @Query("""
             SELECT COUNT(*)
             FROM DomainKeyword dk
@@ -78,12 +75,8 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
     long countMultiWordDomains(@Param("windowStart") LocalDateTime windowStart,
                                @Param("now") LocalDateTime now);
 
-    /**
-     * Rising keywords for 15m, 1h and 3h in ONE pass over the last 6 hours.
-     * HAVING drops the long tail of one-off keywords before it leaves the database:
-     * the 3h count is always >= the 1h and 15m counts, so it is a safe filter.
-     */
-    @Query("""
+
+     @Query("""
             SELECT new com.project.DomainRegistrationLive.dto.projection.RisingKeywordProjection(
                 dk.keyword,
                 SUM(CASE WHEN dk.registeredAt >= :recent15mStart THEN 1 ELSE 0 END),
@@ -108,7 +101,6 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
                                                         @Param("now") LocalDateTime now,
                                                         @Param("minRecent") long minRecent);
 
-    /** Movers, step 1: keywords with at least minToday uses today.  Rows: [keyword, count] */
     @Query("""
             SELECT dk.keyword, COUNT(*)
             FROM DomainKeyword dk
@@ -123,7 +115,7 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
                                          @Param("minToday") long minToday,
                                          Pageable pageable);
 
-    /** Movers, step 2: history for ONLY those keywords (served by the keyword+time index).  Rows: [keyword, count] */
+
     @Query("""
             SELECT dk.keyword, COUNT(*)
             FROM DomainKeyword dk
@@ -136,12 +128,7 @@ public interface DomainKeywordRepository extends JpaRepository<DomainKeyword, UU
                                      @Param("windowStart") LocalDateTime windowStart,
                                      @Param("windowEnd") LocalDateTime windowEnd);
 
-    /**
-     * Words for a set of domains, in word order.  Rows: [domainId, keyword]
-     *
-     * ASSUMPTION: DomainKeyword has a `domain` relation and a `position` field.
-     * If it stores a plain `domainId` column instead, replace dk.domain.id with dk.domainId.
-     */
+
     @Query("""
             SELECT dk.domain.id, dk.keyword
             FROM DomainKeyword dk

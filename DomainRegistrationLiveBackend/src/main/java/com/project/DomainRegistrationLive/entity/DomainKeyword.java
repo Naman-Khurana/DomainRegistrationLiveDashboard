@@ -15,12 +15,16 @@ import java.util.UUID;
 @Table(name = "domain_keyword",
         indexes = {
             @Index(
+                    name = "kw_window_idx",
+                    columnList = "registered_at, keyword, is_first, is_last"
+            ),
+            @Index(
                     name = "kw_keyword_time_idx",
                     columnList = "keyword, registered_at"
             ),
             @Index(
-                    name = "kw_time_idx",
-                    columnList = "registered_at"
+                name = "kw_domain_idx",
+                columnList = "domain_id, position"
             )
         } )
 @Getter
