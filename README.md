@@ -115,3 +115,17 @@ Open the URL printed by the Next.js dev server (usually <http://localhost:3000>)
 2. All ingested registrations are assumed to be confirmed and valid.
 3. Registrar ID-to-name mapping has not been implemented; registrar names are represented as ICANN #<ID>.
 4. The implementation is an associated implementation of the dotweekly.com/keywords/live page, with some features simplified or omitted due to time constraints.
+
+
+### Ingesting new domains
+
+New domains can be ingested through the batch endpoint:
+
+```bash
+curl --location 'http://localhost:8080/v1/ingest/batch' \
+--header 'Content-Type: application/json' \
+--data '[
+  {"name":"cloudnova.com","registrarId":1,"registeredAt":"2026-10-05T11:40:01"},
+  {"name":"cloudnova.net","registrarId":2,"registeredAt":"2026-10-05T11:40:02"},
+  {"name":"cloudnova.org","registrarId":3,"registeredAt":"2026-10-05T11:40:03"}
+]'
