@@ -60,7 +60,7 @@ public final class SnapshotModels {
     public record StatsPayload(long builtAt, Long lastCycleAt, NowStats now, TodayStats today) {
     }
 
-    public record SnapshotResponse(long snapshotId, long updatedAt, long lastCycleAt, long serverNow,
+    public record SnapshotResponse(long snapshotId, long updatedAt, Long lastCycleAt, long serverNow,
                                    NowStats now, TodayStats today, List<FeedEntry> feed) {
     }
 
