@@ -31,12 +31,12 @@ export default function TopKeywords({ keywords, slot }: Props) {
           <div key={kw.word} className="flex items-center gap-2.5 py-1.5">
             <span className="text-[13px] text-gray-900 min-w-[70px] xl:min-w-[90px] whitespace-nowrap overflow-hidden text-ellipsis">{kw.word}</span>
             <div className="flex-1 h-2.5 bg-gray-100 rounded-[3px] overflow-hidden relative">
-              {/* Full bar */}
+
               <div
                 className="h-full rounded-[3px] bg-gray-700 opacity-25 transition-all duration-400 ease-out"
                 style={{ width: `${(kw.count / max) * 100}%` }}
               />
-              {/* Prefix segment */}
+
               <div
                 className="absolute top-0 left-0 h-full rounded-[3px] bg-gray-700 transition-all duration-400 ease-out"
                 style={{ width: `${(kw.pfx / max) * 100}%` }}
@@ -46,7 +46,7 @@ export default function TopKeywords({ keywords, slot }: Props) {
           </div>
         ))}
       </div>
-      
+
       <div className="px-4 py-2 bg-gray-50 border-t border-gray-100 text-[10px] text-gray-400 flex items-center gap-3">
         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-gray-700"></span>prefix</span>
         <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-500"></span>suffix</span>

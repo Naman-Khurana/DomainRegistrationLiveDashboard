@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import type { RegistrarEntry, DailyResponse } from "@/types/api";
 import { DAILY_URL } from "@/app/constants/url_constants";
 
-// Extension colors matching the reference screenshot legend
 const EXT_COLORS = [
   { key: "com", color: "#3b82f6", label: ".com" },
   { key: "online", color: "#f97316", label: ".online" },

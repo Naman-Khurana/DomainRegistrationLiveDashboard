@@ -92,7 +92,7 @@ export default function StatsOverview({ now }: Props) {
                 </div>
             </div>
 
-            {/* ── Format bar ── */}
+
             <div
                 className="flex flex-wrap items-center gap-5 py-2.5 pb-4 text-[12px] text-gray-500"
                 aria-label="Domain format breakdown"

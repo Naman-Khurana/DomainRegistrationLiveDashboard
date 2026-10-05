@@ -1,10 +1,7 @@
 interface Props {
-  // Seconds since the snapshot was built.
-  // Leave it undefined while the first snapshot is loading: the LIVE badge is hidden until then.
   ago?: number;
 }
 
-// Registries that don't publish a registration date.  Duplicates are removed when it is rendered.
 const EXCLUDED_TLDS = Array.from(
   new Set(
     (
@@ -51,13 +48,11 @@ export default function SectionHeader({ ago }: Props) {
         </p>
       </div>
 
-      {/* ── Notice banner ── */}
       <div className="bg-amber-50 border border-amber-300 rounded-full text-[12px] text-amber-800 px-3.5 py-2 mb-2.5" role="note">
         Live sample of registry-confirmed new registrations — not every registration. The complete daily count is
         further down the page.
       </div>
 
-      {/* ── Excluded TLDs ── */}
       <p className="text-[11px] text-gray-400 leading-relaxed mb-5">
         Not shown: {EXCLUDED_TLDS.join(" ")} — these registries don&apos;t publish a registration date, so new names
         there can&apos;t be confirmed.

@@ -10,10 +10,10 @@ import DashboardLoader from "./DashboardLoader";
 import { SNAPSHOT_URL, FEED_URL } from "@/app/constants/url_constants";
 import { toMillis } from "@/lib/time";
 
-/** How long to wait before asking again if the very first snapshot request fails. */
+
 const INITIAL_RETRY_MS = 3000;
 
-/** When the snapshot was built, in ms.  Works whether the API sends a number or an ISO string. */
+
 function snapshotMillis(s: StatsPayload): number {
   return toMillis(s.updatedAt) ?? toMillis(s.builtAt) ?? Date.now();
 }
@@ -26,14 +26,10 @@ async function fetchSnapshot(signal?: AbortSignal): Promise<StatsPayload> {
 }
 
 export default function LiveDashboardClient() {
-  // null until the first snapshot arrives; the loader is shown below the header meanwhile
   const [snapshot, setSnapshot] = useState<StatsPayload | null>(null);
   const [loadFailed, setLoadFailed] = useState(false);
 
-  // allIncoming = every entry ever received (initial feed + each snapshot's feed).
-  // LiveFeed owns deduplication; we just accumulate here.
   const [allIncoming, setAllIncoming] = useState<FeedEntry[]>([]);
-  // feedLoading drives the skeleton loader in LiveFeed
   const [feedLoading, setFeedLoading] = useState(true);
 
   const [ago, setAgo] = useState(0);
@@ -69,7 +65,7 @@ export default function LiveDashboardClient() {
   }, []);
 
   // 2) First-load feed, once, in parallel with the snapshot.
-  //    Functional update, so a snapshot feed that arrives first is not lost.
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -114,7 +110,7 @@ export default function LiveDashboardClient() {
         try {
           const data = await fetchSnapshot();
           setSnapshot(data);
-          // Append snapshot feed entries to accumulator; LiveFeed deduplicates
+
           if (data.feed && data.feed.length > 0) {
             setAllIncoming((prev) => [...prev, ...data.feed]);
           }

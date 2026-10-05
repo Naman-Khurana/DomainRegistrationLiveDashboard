@@ -44,7 +44,7 @@ function DashboardContent({ snapshot, incomingEntries, feedLoading }: Props) {
 
                     <TopStatsContainer keywords={now.topKeywords} tlds={now.tlds} />
 
-                    <RepeatsSection repeats={snapshot.repeats} />
+                    <RepeatsSection repeats={now.repeats} />
 
                     <div className="mb-6">
                         <WhereRegistered registrars={now.registrars} />

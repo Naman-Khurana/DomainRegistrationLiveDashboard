@@ -21,7 +21,7 @@ interface BlockData {
 
 export default function TopStatsContainer({ keywords, tlds }: Props) {
   const [slot, setSlot] = useState<HourSlot>("this");
-  const [blockData, setBlockData] = useState<Partial<Record<"last" | "2h", BlockData | null>>>({}); 
+  const [blockData, setBlockData] = useState<Partial<Record<"last" | "2h", BlockData | null>>>({});
   const [blockLoading, setBlockLoading] = useState(false);
 
   useEffect(() => {
@@ -45,7 +45,6 @@ export default function TopStatsContainer({ keywords, tlds }: Props) {
         setBlockData((prev) => ({ ...prev, [slot]: null }));
       })
       .finally(() => setBlockLoading(false));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slot]);
 
   const displayKeywords =
@@ -61,7 +60,7 @@ export default function TopStatsContainer({ keywords, tlds }: Props) {
   return (
     <div className="mb-6">
       <HourSelector value={slot} onChange={setSlot} />
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
         <TopKeywords keywords={displayKeywords} slot={slot} />
         <TopTLDs tlds={displayTlds} slot={slot} />

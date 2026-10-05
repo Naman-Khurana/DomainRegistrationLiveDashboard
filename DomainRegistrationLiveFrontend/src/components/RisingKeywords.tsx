@@ -7,7 +7,6 @@ type Window = "15m" | "1h" | "3h";
 
 interface Props {
   data: Record<Window, RisingEntry[]>;
-  /** Called with the keyword string when a pill is clicked. */
   onKeywordClick?: (keyword: string) => void;
 }
 

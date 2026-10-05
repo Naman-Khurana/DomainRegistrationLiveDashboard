@@ -1,8 +1,8 @@
-// Shared reusable UI primitives
+
 
 import React from "react";
 
-// ─── Hour Selector ─────────────────────────────────────────────────────────────
+
 type HourSlot = "this" | "last" | "2h";
 
 const HOUR_SLOTS: { key: HourSlot; label: string }[] = [

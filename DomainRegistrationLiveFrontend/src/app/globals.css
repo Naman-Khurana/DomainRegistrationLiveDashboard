@@ -7,19 +7,29 @@
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
   }
+
   body {
     @apply font-sans bg-white text-gray-900;
   }
+
   * {
     @apply box-border m-0 p-0;
   }
 }
 
-/* Progressive-reveal highlight for newly inserted feed entries */
+
 @keyframes feedItemNew {
-  0%   { background-color: #dbeafe; } /* blue-100 */
-  60%  { background-color: #dbeafe; }
-  100% { background-color: transparent; }
+  0% {
+    background-color: #dbeafe;
+  }
+
+  60% {
+    background-color: #dbeafe;
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
 
 .feed-item-new {

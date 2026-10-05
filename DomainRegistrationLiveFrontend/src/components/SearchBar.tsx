@@ -45,31 +45,25 @@ function resultSummary(count: number, keyword: string, h: HValue): string {
   return `${count} new registration${count !== 1 ? "s" : ""} containing "${keyword}" ${range.resultLabel}`;
 }
 
-// ─── Imperative handle ───────────────────────────────────────────────────────
 
 export interface SearchBarHandle {
   /** Programmatically submit a keyword exactly as if the user typed and pressed Search. */
   triggerSearch: (keyword: string) => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+
 
 const SearchBar = forwardRef<SearchBarHandle>(function SearchBar(_, ref) {
-  // What the user is currently typing
+
   const [inputValue, setInputValue] = useState("");
 
-  // What was actually submitted (drives the API call and results panel)
   const [submittedQuery, setSubmittedQuery] = useState("");
 
-  // Selected time range — always resets to h=0 on a new search
   const [selectedH, setSelectedH] = useState<HValue>(0);
 
-  // Search state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<SearchResponse | null>(null);
-
-  // Whether the results panel is open
   const isOpen = submittedQuery.trim().length > 0;
 
   const abortRef = useRef<AbortController | null>(null);
@@ -78,17 +72,14 @@ const SearchBar = forwardRef<SearchBarHandle>(function SearchBar(_, ref) {
   // Cancel any in-flight request when the component unmounts
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  // ── Shared programmatic search entry point ──
-  // Called by handleSubmit AND by the imperative handle (rising keyword clicks).
   const submitQuery = (q: string) => {
     const trimmed = q.trim();
     if (!trimmed) return;
     setInputValue(trimmed);
-    setSelectedH(0);          // always reset to "This hour"
+    setSelectedH(0);
     setSubmittedQuery(trimmed);
   };
 
-  // ── Re-fetch whenever the submitted query or selected time range changes ──
   useEffect(() => {
     if (!submittedQuery.trim()) return;
 
@@ -122,10 +113,8 @@ const SearchBar = forwardRef<SearchBarHandle>(function SearchBar(_, ref) {
       .finally(() => {
         if (abortRef.current === controller) setLoading(false);
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submittedQuery, selectedH]);
 
-  // ── Imperative handle so parent can trigger a search from outside ──
   useImperativeHandle(ref, () => ({
     triggerSearch: (keyword: string) => {
       submitQuery(keyword);
@@ -145,17 +134,17 @@ const SearchBar = forwardRef<SearchBarHandle>(function SearchBar(_, ref) {
     setError(null);
   };
 
-  // ── Submit ──
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     submitQuery(inputValue);
     if (!inputValue.trim()) handleClose();
   };
 
-  // ── Time range change ──
+
   const handleRangeChange = (h: HValue) => {
     if (h === selectedH) return;
-    setSelectedH(h);          // triggers the useEffect above (same submittedQuery, new h)
+    setSelectedH(h);
   };
 
   return (
@@ -224,10 +213,10 @@ const SearchBar = forwardRef<SearchBarHandle>(function SearchBar(_, ref) {
         )}
       </form>
 
-      {/* ── Expanded results panel (only visible after a non-empty submit) ── */}
+      {/* Expanded results panel */}
       {isOpen && (
         <div className="mt-3 border border-gray-200 rounded-lg bg-white p-4">
-          {/* Time range pills */}
+
           <div className="flex items-center gap-2 mb-3">
             {TIME_RANGES.map(({ h, label }) => (
               <button
