@@ -88,9 +88,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
         Long lastCycle = timer.time("meta", () -> lastCycleMillis());
 
-        return new StatsPayload(now.atZone(ZoneId.of("Asia/Kolkata"))
-                .toInstant()
-                .toEpochMilli(),
+        return new StatsPayload(System.currentTimeMillis(),
                 lastCycle, nowStats, new TodayStats(movers));
 
 
@@ -147,7 +145,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         LocalDateTime t = domainRepository.findLatestCreatedAt();
         return t == null
                 ? null
-                : t.atZone(ZoneId.of("Asia/Kolkata"))
+                : t.atZone(ZoneId.systemDefault())
                 .toInstant()
                 .toEpochMilli();
     }

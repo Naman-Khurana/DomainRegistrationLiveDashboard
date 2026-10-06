@@ -6,6 +6,12 @@ spring:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/DomainRegistrationLiveDashboardDB}
     username: ${DB_USER:postgres}
     password: ${DB_PASS:naman1234}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -18,7 +24,7 @@ spring:
         order-inserts: true
 
 splitter:
-  url: http://localhost:8000
+  url: ${SPLITTER_URL:http://localhost:8000}
   connect-timeout: 2s
   read-timeout: 10s
 
@@ -34,3 +40,8 @@ snapshot:
   initial-delay: 3s
   snapshots-to-keep: 500
   top-keywords: 15
+
+cors:
+  # In production set: CORS_ALLOWED_ORIGINS=https://yourdomain.com
+  # Multiple origins: CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}

@@ -42,9 +42,11 @@ public class FeedServiceImpl implements FeedService {
     //for new session
     @Override
     public List<FeedEntry> latest(long toId, int limit) {
+
         List<Domain> newestFirst = domainRepository.findByStatusAndIdLessThanEqualOrderByIdDesc(
                 DomainStatus.PARSED, toId, PageRequest.of(0, limit));
 
+        log.info("feed received new entries: {}", newestFirst.size() );
         Collections.reverse(newestFirst);
 
         return toEntries(newestFirst);
@@ -71,7 +73,7 @@ public class FeedServiceImpl implements FeedService {
                     registrarId,
                     snapshotProperties.registrarName(registrarId),
                     d.getRegisteredAt()
-                            .atZone(ZoneId.of("Asia/Kolkata"))
+                            .atZone(ZoneId.systemDefault())
                             .toInstant()
                             .toEpochMilli()
             ));
