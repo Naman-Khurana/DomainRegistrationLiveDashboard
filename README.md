@@ -88,6 +88,13 @@ npm run dev
 
 Open the URL printed by the Next.js dev server (usually <http://localhost:3000>).
 
+
+### Docker Method
+1. Have Docker Desktop installed
+2. created .env file with attribute DB_PASS = {YOUR DB PASSWORD}
+```bash
+docker compose up -d --build
+```
 > **Windows:** use `mvnw.cmd` instead of `./mvnw`, `venv\Scripts\activate` instead of `source venv/bin/activate`, and `python` instead of `python3`.
 
 ## Architecture
