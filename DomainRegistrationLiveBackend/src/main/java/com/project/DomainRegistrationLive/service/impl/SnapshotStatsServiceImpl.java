@@ -56,7 +56,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
         KeywordEntry topKeyword = topKeywords.stream().findFirst().orElse(null);
 
-        List<TldEntry> tlds = timer.time(SnapshotBuildStage.TLDS.name(), () -> tlds(from, now, snapshotProperties.topTlds()));
+        List<TldEntry> tlds = timer.time(SnapshotBuildStage.TLDS.name(), () -> tlds(from, now, total));
 
         List<RegistrarEntry> registrars = timer.time(SnapshotBuildStage.REGISTRAR.name(), () -> registrars(from, now));
 
@@ -127,7 +127,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         List<TldEntry> out = new ArrayList<>(rows.size());
         for (Object[] r : rows) {
             long count = longNullSafe(r[1]);
-            out.add(new TldEntry((String) r[0], count, total == 0 ? 0 : Math.round(count * 100.0 / total)));
+            out.add(new TldEntry((String) r[0], count, total == 0 ? 0 : round1(count * 100.0 / total)));
         }
         return out;
     }
