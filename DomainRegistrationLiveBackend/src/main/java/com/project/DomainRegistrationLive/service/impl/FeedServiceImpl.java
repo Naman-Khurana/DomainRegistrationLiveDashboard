@@ -1,10 +1,10 @@
 package com.project.DomainRegistrationLive.service.impl;
 
-import com.project.DomainRegistrationLive.config.SnapshotProperties;
 import com.project.DomainRegistrationLive.entity.Domain;
 import com.project.DomainRegistrationLive.enums.DomainStatus;
 import com.project.DomainRegistrationLive.repository.DomainRepository;
 import com.project.DomainRegistrationLive.service.FeedService;
+import com.project.DomainRegistrationLive.service.RegistrarDictionary;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +24,7 @@ import static com.project.DomainRegistrationLive.dto.SnapshotModels.*;
 public class FeedServiceImpl implements FeedService {
 
     private final DomainRepository domainRepository;
-    private final SnapshotProperties snapshotProperties;
+    private final RegistrarDictionary registrarDictionary;
 
     @Override
     public List<FeedEntry> read(long afterId, long toId) {
@@ -71,7 +71,7 @@ public class FeedServiceImpl implements FeedService {
                     d.getTld(),
 
                     registrarId,
-                    snapshotProperties.registrarName(registrarId),
+                    registrarDictionary.getName(registrarId),
                     d.getRegisteredAt()
                             .atZone(ZoneId.systemDefault())
                             .toInstant()

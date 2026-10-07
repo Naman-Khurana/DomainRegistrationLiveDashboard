@@ -23,7 +23,7 @@ public interface IngestionService {
             )
     );
 
-    Domain buildDomain(String extractedDomain, int registrarId, LocalDateTime registeredAt);
+    Domain buildDomain(String extractedDomain, Integer registrarId, LocalDateTime registeredAt);
 
     List<IngestResponse> ingestAll(List<IngestRequest> requests);
 

@@ -31,8 +31,7 @@ splitter:
 segmentation:
   batch-size: 100
   max-attempts: 5
-#  change idle time to 1 sec later
-  idle-sleep: 5s
+  idle-sleep: 2s
   error-backoff: 5s
 
 snapshot:
@@ -42,6 +41,12 @@ snapshot:
   top-keywords: 15
 
 cors:
-  # In production set: CORS_ALLOWED_ORIGINS=https://yourdomain.com
-  # Multiple origins: CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://www.yourdomain.com
+
   allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+collector:
+  enabled: true
+  rdap-workers: 4
+  max-age: 360m
+  rdap-max-per-host-per-second: 5
+  certstream-url: ${COLLECTOR_CERTSTREAM_URL:ws://localhost:8081/}

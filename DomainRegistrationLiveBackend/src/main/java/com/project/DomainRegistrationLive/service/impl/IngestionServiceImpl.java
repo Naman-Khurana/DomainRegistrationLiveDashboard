@@ -4,7 +4,6 @@ import com.project.DomainRegistrationLive.dto.request.IngestRequest;
 import com.project.DomainRegistrationLive.dto.response.IngestResponse;
 import com.project.DomainRegistrationLive.entity.Domain;
 import com.project.DomainRegistrationLive.enums.DomainStatus;
-import com.project.DomainRegistrationLive.exception.DuplicateResourceException;
 import com.project.DomainRegistrationLive.mapper.DomainMapper;
 import com.project.DomainRegistrationLive.repository.DomainRepository;
 import com.project.DomainRegistrationLive.service.IngestionService;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.project.DomainRegistrationLive.exception.ErrorCodes.DUPLICATE_DOMAIN;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +29,7 @@ public class IngestionServiceImpl implements IngestionService {
     private final DomainMapper domainMapper;
 
     @Override
-    public Domain buildDomain(String extractedDomain, int registrarId, LocalDateTime registeredAt) {
+    public Domain buildDomain(String extractedDomain, Integer registrarId, LocalDateTime registeredAt) {
 
         String[] domainArr = extractedDomain.split("\\.");
         String sld = domainArr[0];

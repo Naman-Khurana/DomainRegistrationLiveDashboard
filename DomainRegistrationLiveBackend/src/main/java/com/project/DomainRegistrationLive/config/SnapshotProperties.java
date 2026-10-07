@@ -14,25 +14,14 @@ public record SnapshotProperties (
         @DefaultValue("15") int topKeywords,
         @DefaultValue("15") int topTlds,
         @DefaultValue("15") int topRegistrars,
-        @DefaultValue("5") int risingMinRecent,
+        @DefaultValue("2") int risingMinRecent,
         @DefaultValue("15") int risingLimit,
         @DefaultValue("10") int topPrefixSuffix,
         @DefaultValue("18") int moversLimit,
         @DefaultValue("30") int moversMinToday,
         @DefaultValue("500") int moversCandidates,
-        @DefaultValue("60") int feedPreload,
+        @DefaultValue("60") int feedPreload
 
 
-        Map<Long, String> registrarNames
 ) {
-
-    public SnapshotProperties {
-        if (registrarNames == null) {
-            registrarNames = Map.of();
-        }
-    }
-
-    public String registrarName(Long id) {
-        return id == null ? null : registrarNames.getOrDefault(id, "IANA #" + id);
-    }
 }

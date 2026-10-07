@@ -7,6 +7,8 @@ import com.project.DomainRegistrationLive.enums.SnapshotBuildStage;
 import com.project.DomainRegistrationLive.repository.DomainKeywordRepository;
 import com.project.DomainRegistrationLive.repository.DomainRepository;
 import com.project.DomainRegistrationLive.service.FeedService;
+import com.project.DomainRegistrationLive.service.KeywordRules;
+import com.project.DomainRegistrationLive.service.RegistrarDictionary;
 import com.project.DomainRegistrationLive.service.SnapshotStatsService;
 import com.project.DomainRegistrationLive.timer.SectionTimer;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
     private final DomainKeywordRepository domainKeywordRepository;
     private final SnapshotProperties snapshotProperties;
     private final FeedService feedService;
+    private final RegistrarDictionary registrarDictionary;
 
     private static final int OVERFETCH = 5;
     private static final int MIN_REPEAT_TLDS = 2;
@@ -109,12 +112,11 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
                 domainKeywordRepository.getKeywordStats(from, now, PageRequest.of(0,
                         snapshotProperties.topKeywords() + OVERFETCH));
 
-        //todo : add keyword rules to exclude a,an,the....
         return rows.stream()
-//                .filter(k -> !KeywordRules.isNumeric(k.keyword()))
+                .filter(k -> !KeywordRules.isNumeric(k.keyword()))
                 .limit(snapshotProperties.topKeywords())
                 .map(k -> new KeywordEntry(k.keyword(), k.count(),
-                        k.prefixCount(), k.suffixCount(), false))
+                        k.prefixCount(), k.suffixCount(), KeywordRules.isStop(k.keyword())))
                 .toList();
     }
 
@@ -136,7 +138,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         List<RegistrarEntry> out = new ArrayList<>(topRegistrars.size());
         for (Object[] reg : topRegistrars) {
             Long id = longNullSafe(reg[0]);
-            out.add(new RegistrarEntry(id, snapshotProperties.registrarName(id), longNullSafe(reg[1])));
+            out.add(new RegistrarEntry(id, registrarDictionary.getName(id), longNullSafe(reg[1])));
         }
         return out;
     }
@@ -176,7 +178,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         for (RisingKeywordProjection r : rows) {
             long recent = recentOf.applyAsLong(r);
             long prior = priorOf.applyAsLong(r);
-            if (recent < snapshotProperties.risingMinRecent()) {
+            if (recent < snapshotProperties.risingMinRecent() || !KeywordRules.isRankable(r.keyword())) {
                 continue;
             }
             list.add(new RisingEntry(r.keyword(), recent, prior, round1((double) recent / Math.max(prior, 1))));
@@ -196,8 +198,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         List<Object[]> rows = prefix ? domainKeywordRepository.getPrefixCounts(from, now, page)
                 : domainKeywordRepository.getSuffixCounts(from, now, page);
         return rows.stream()
-                //todo: add the keyword rules filter
-//                .filter(r -> KeywordRules.isRankable((String) r[0]))
+                .filter(r -> KeywordRules.isRankable((String) r[0]))
                 .limit(snapshotProperties.topPrefixSuffix())
                 .map(r -> new WordEntry((String) r[0], longNullSafe(r[1])))
                 .toList();
@@ -239,10 +240,9 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         for (Object[] r : domainKeywordRepository.getTodayKeywordCounts(todayStart, now, snapshotProperties.moversMinToday(),
                 PageRequest.of(0, snapshotProperties.moversCandidates()))) {
             String word = (String) r[0];
-            //todo: fix after adding keyword rules
-//            if (KeywordRules.isRankable(word)) {
-//                today.put(word, lng(r[1]));
-//            }
+            if (KeywordRules.isRankable(word)) {
+                today.put(word, longNullSafe(r[1]));
+            }
         }
         if (today.isEmpty()) {
             return List.of();

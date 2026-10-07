@@ -36,22 +36,41 @@ services:
       PORT: 8000
     restart: unless-stopped
 
+  certstream:
+    # Open-source, self-hosted CertStream server
+    image: 0rickyy0/certstream-server-go
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 8080 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
   backend:
     build: ./DomainRegistrationLiveBackend
     container_name: domain_registration_backend
-    # Bind only to localhost — Caddy proxies from the outside.
-    # The backend is NOT directly reachable from the internet.
+
     ports:
       - "127.0.0.1:8080:8080"
     environment:
+      TZ: Asia/Kolkata
+      JAVA_TOOL_OPTIONS: >-
+        -Duser.timezone=Asia/Kolkata
+        -Dspring.jpa.properties.hibernate.jdbc.time_zone=Asia/Kolkata
+        -Dspring.jpa.properties.hibernate.jdbc.batch_size=100
+        -Dspring.jpa.properties.hibernate.order_inserts=true
+        -Dspring.jpa.properties.hibernate.order_updates=true
       DB_URL: jdbc:postgresql://postgres:5432/DomainRegistrationLiveDashboardDB
       DB_USER: postgres
       DB_PASS: ${DB_PASS}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       SPLITTER_URL: http://splitter:8000
-      # Single-domain deployment: frontend and backend share the same origin.
-      # CORS is only needed for local dev (localhost:3000 vs localhost:8080).
+
+      COLLECTOR_CERTSTREAM_URL: ws://certstream:8080/
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
     depends_on:
       postgres:
@@ -60,20 +79,20 @@ services:
         condition: service_healthy
       splitter:
         condition: service_started
+      certstream:
+        condition: service_started
     restart: unless-stopped
 
   frontend:
     build:
       context: ./DomainRegistrationLiveFrontend
       args:
-        # In single-domain Caddy mode NEXT_PUBLIC_API_URL is left empty.
-        # The browser uses relative URLs (/v1/...) which Caddy routes to the backend.
-        # The Next.js server-side rewrite proxy is not used in this mode.
-        NEXT_PUBLIC_API_URL: # BACKEND_URL is used by next.config.ts rewrites for local dev only.
+
+        NEXT_PUBLIC_API_URL:
 
         BACKEND_URL: http://backend:8080
     container_name: domain_registration_frontend
-    # Bind only to localhost — Caddy proxies from the outside.
+
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:
