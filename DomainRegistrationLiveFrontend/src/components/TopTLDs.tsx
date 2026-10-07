@@ -66,7 +66,7 @@ export default function TopTLDs({ tlds, slot }: Props) {
                 <div
                   className="h-full rounded-[3px] transition-all duration-400 ease-out"
                   style={{
-                    width: `${(tld.count / max) * 100}%`,
+                    width: `${Math.min(tld.share, 100)}%`,
                     background: color,
                   }}
                 />
