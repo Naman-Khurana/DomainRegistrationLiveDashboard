@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "segmentation")
+@ConfigurationProperties(prefix = "snapshot")
 public record SnapshotProperties (
         @DefaultValue("500") int snapshotsToKeep,
         @DefaultValue("10s") String interval,
