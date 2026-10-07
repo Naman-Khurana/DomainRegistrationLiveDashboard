@@ -193,6 +193,9 @@ export default function LiveFeed({
               <polyline points="12 6 12 12 16 14" />
             </svg>
             Live registrations
+            <span className="font-normal text-[11px] text-gray-400">
+              (up to last 6 hours)
+            </span>
           </div>
 
           <button
