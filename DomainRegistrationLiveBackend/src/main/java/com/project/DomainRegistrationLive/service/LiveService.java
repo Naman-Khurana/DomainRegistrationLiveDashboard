@@ -3,6 +3,7 @@ package com.project.DomainRegistrationLive.service;
 import com.project.DomainRegistrationLive.dto.response.BlockResponse;
 import com.project.DomainRegistrationLive.dto.response.DailySummaryResponse;
 import com.project.DomainRegistrationLive.dto.response.SearchResponse;
+import com.project.DomainRegistrationLive.dto.response.DayStatsResponse;
 import com.project.DomainRegistrationLive.entity.Snapshot;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,8 @@ public interface LiveService {
     SearchResponse search(String keyword, Integer windowStart);
 
     DailySummaryResponse daily(LocalDate date);
+    
+    DayStatsResponse dayStats(LocalDate date);
 
     BlockResponse block(int i);
 }

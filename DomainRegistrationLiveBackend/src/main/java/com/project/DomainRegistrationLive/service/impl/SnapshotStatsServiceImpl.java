@@ -58,7 +58,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
 
         List<TldEntry> tlds = timer.time(SnapshotBuildStage.TLDS.name(), () -> tlds(from, now, total));
 
-        List<RegistrarEntry> registrars = timer.time(SnapshotBuildStage.REGISTRAR.name(), () -> registrars(from, now));
+        List<RegistrarEntry> registrars = timer.time(SnapshotBuildStage.REGISTRAR.name(), () -> registrars(from, now, total));
 
         Map<String,List<RisingEntry>> rising = timer.time(SnapshotBuildStage.RISING.name(), () -> loadRising());
 
@@ -66,7 +66,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
         List<WordEntry> suffix = timer.time(SnapshotBuildStage.SUFFIX.name(), () -> edges(false, from, now));
 
 
-        FormatEntry format = timer.time(SnapshotBuildStage.FORMAT.name(), () -> loadFormat());
+        FormatEntry format = timer.time(SnapshotBuildStage.FORMAT.name(), () -> loadFormat(from, now));
 
         List<HourEntry> hourly = timer.time(SnapshotBuildStage.FORMAT.name(), () -> loadHourly());
 
@@ -133,12 +133,18 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
     }
 
     @Override
-    public List<RegistrarEntry> registrars(LocalDateTime from, LocalDateTime now) {
+    public List<RegistrarEntry> registrars(LocalDateTime from, LocalDateTime now, long total) {
         List<Object[]> topRegistrars = domainRepository.getRegistrarCounts(from, now, PARSED, PageRequest.of(0, snapshotProperties.topRegistrars()));
-        List<RegistrarEntry> out = new ArrayList<>(topRegistrars.size());
+        List<RegistrarEntry> out = new ArrayList<>(topRegistrars.size() + 1);
+        long sum = 0;
         for (Object[] reg : topRegistrars) {
             Long id = longNullSafe(reg[0]);
-            out.add(new RegistrarEntry(id, registrarDictionary.getName(id), longNullSafe(reg[1])));
+            long count = longNullSafe(reg[1]);
+            sum += count;
+            out.add(new RegistrarEntry(id, registrarDictionary.getName(id), count));
+        }
+        if (total > sum) {
+            out.add(new RegistrarEntry(null, "Others", total - sum));
         }
         return out;
     }
@@ -205,9 +211,7 @@ public class SnapshotStatsServiceImpl implements SnapshotStatsService {
     }
 
     @Override
-    public FormatEntry loadFormat() {
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime from = now.minusHours(1);
+    public FormatEntry loadFormat(LocalDateTime from, LocalDateTime now) {
         Object[] r = domainRepository.getFormatCounts(from, now, PARSED).getFirst();
         long total = longNullSafe(r[0]);
         return new FormatEntry(total, longNullSafe(r[4]), longNullSafe(r[5]), longNullSafe(r[3]), longNullSafe(r[1]), longNullSafe(r[2]));

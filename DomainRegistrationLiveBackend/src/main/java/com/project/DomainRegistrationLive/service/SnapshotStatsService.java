@@ -20,7 +20,7 @@ public interface SnapshotStatsService {
 
     List<TldEntry> tlds(LocalDateTime from, LocalDateTime now, long total);
 
-    List<RegistrarEntry> registrars(LocalDateTime from, LocalDateTime now);
+    List<RegistrarEntry> registrars(LocalDateTime from, LocalDateTime now, long total);
 
     Map<String, List<RisingEntry>> loadRising();
 
@@ -30,7 +30,7 @@ public interface SnapshotStatsService {
 
     List<WordEntry> edges(boolean prefix, LocalDateTime from, LocalDateTime now);
 
-    FormatEntry loadFormat();
+    FormatEntry loadFormat(LocalDateTime from, LocalDateTime now);
 
     List<HourEntry> loadHourly();
 

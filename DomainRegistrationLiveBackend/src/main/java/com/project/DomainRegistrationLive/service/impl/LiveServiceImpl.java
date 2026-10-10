@@ -4,6 +4,7 @@ import com.project.DomainRegistrationLive.cache.SnapshotCache;
 import com.project.DomainRegistrationLive.config.SnapshotProperties;
 import com.project.DomainRegistrationLive.dto.response.BlockResponse;
 import com.project.DomainRegistrationLive.dto.response.DailySummaryResponse;
+import com.project.DomainRegistrationLive.dto.response.DayStatsResponse;
 import com.project.DomainRegistrationLive.dto.response.SearchResponse;
 import com.project.DomainRegistrationLive.entity.Domain;
 import com.project.DomainRegistrationLive.entity.Snapshot;
@@ -130,8 +131,30 @@ public class LiveServiceImpl implements LiveService {
 
     @Override
     public DailySummaryResponse daily(LocalDate date) {
-        List<RegistrarEntry> registrarEntries = snapshotStatsService.registrars(date.atStartOfDay(),date.plusDays(1).atStartOfDay());
+        LocalDateTime from = date.atStartOfDay();
+        LocalDateTime to = date.plusDays(1).atStartOfDay();
+        long total = snapshotStatsService.counter(from, to)[0];
+        List<RegistrarEntry> registrarEntries = snapshotStatsService.registrars(from, to, total);
         return new DailySummaryResponse(date, registrarEntries);
+    }
+
+    @Override
+    public DayStatsResponse dayStats(LocalDate date) {
+        LocalDateTime from = date.atStartOfDay();
+        LocalDateTime to = date.plusDays(1).atStartOfDay();
+
+        long[] counter = snapshotStatsService.counter(from, to);
+        long total = counter[0];
+
+        List<KeywordEntry> topKeywords = snapshotStatsService.topKeywords(from, to, total);
+        List<TldEntry> topTlds = snapshotStatsService.tlds(from, to, total);
+        List<RegistrarEntry> registrars = snapshotStatsService.registrars(from, to, total);
+        
+        List<WordEntry> prefix = snapshotStatsService.edges(true, from, to);
+        List<WordEntry> suffix = snapshotStatsService.edges(false, from, to);
+        FormatEntry format = snapshotStatsService.loadFormat(from, to);
+
+        return new DayStatsResponse(date, total, topKeywords, topTlds, registrars, prefix, suffix, format);
     }
 
     @Override
