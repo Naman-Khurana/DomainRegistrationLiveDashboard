@@ -35,7 +35,7 @@ segmentation:
   error-backoff: 5s
 
 snapshot:
-  interval: 10s
+  interval: 8s
   initial-delay: 3s
   snapshots-to-keep: 500
   top-keywords: 15
